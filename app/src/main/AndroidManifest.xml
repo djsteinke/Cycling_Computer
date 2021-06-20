@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="rnfive.djs.cyclingcomputer">
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <queries>
+        <package android:name="com.dsi.ant.plugins.antplus"/>
+    </queries>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.CyclingComputer" >
+        <service android:name="rnfive.djs.cyclingcomputer.service.Service_Recording"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location">
+            <intent-filter>
+                <action android:name="rn5.djs.gps_cycling_computer.RecordingService.START_RECORDING"/>
+                <action android:name="rn5.djs.gps_cycling_computer.RecordingService.STOP_RECORDING"/>
+                <action android:name="rn5.djs.gps_cycling_computer.RecordingService.STOP_SERVICE"/>
+                <action android:name="rn5.djs.gps_cycling_computer.RecordingService.START_SERVICE"/>
+                <action android:name="rn5.djs.gps_cycling_computer.RecordingService.ZERO_POWER"/>
+            </intent-filter>
+        </service>
+        <activity
+            android:name="rnfive.djs.cyclingcomputer.MainActivity"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
+                <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="rnfive.djs.cyclingcomputer.Settings"
+            android:label="@string/settings" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="app" android:host="localhost" android:path="/gps_cycling_computer"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="rnfive.djs.cyclingcomputer.LogReader"
+            android:label="@string/log" />
+        <activity
+            android:name="rnfive.djs.cyclingcomputer.Activity_DataFieldPrefs"
+            android:label="@string/data_field_settings" />
+        <activity android:name="rnfive.djs.cyclingcomputer.strava.activity.StravaLogin"
+            android:label="Strava Login"/>
+        <activity android:name="rnfive.djs.cyclingcomputer.Activity_AntSensorSearch"
+            android:label="ANT+ Device Search"/>
+
+        <!--
+            <activity android:name="rnfive.djs.cyclingcomputer.activity.Activity_Bluetooth"
+                android:screenOrientation="portrait"
+                android:label="Bluetooth"/>
+            <activity android:name="rnfive.djs.cyclingcomputer.activity.Activity_BleSearch"
+                android:label="Bluetooth Device Search"/>
+            <activity android:name="rnfive.djs.cyclingcomputer.activity.Activity_HRV"
+                android:label="HR Variability">
+                <intent-filter>
+                    <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
+                    <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
+                </intent-filter>
+            </activity>
+            <service android:name="rnfive.djs.cyclingcomputer.service.Service_Bluetooth"/>
+            -->
+        </application>
+
+    </manifest>

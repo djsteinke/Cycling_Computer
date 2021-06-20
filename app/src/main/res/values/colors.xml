@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#FFFFFF</color>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#2471A3</color>
+    <color name="colorAccentTransparent">#662471A3</color>
+
+    <color name="theme_light_blue">#2471A3</color>
+
+    <color name="theme_blue">#3498DB</color>
+    <color name="theme_dark_blue">#2874A6</color>
+
+    <color name="theme_off_white">#DEDEDE</color>
+    <color name="theme_off_black">#424242</color>
+    <color name="theme_gray">#9E9E9E</color>
+
+    <color name="toolbarDark">#B3B6B7</color>
+    <color name="gray_light">#E5E7E9</color>
+    <color name="red_soft">#C0392B</color>
+    <color name="green">#43A047</color>
+
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="gray">#FF707070</color>
+    <color name="dark_gray">#FF505050</color>
+
+    <color name="red">#FFFF0000</color>
+
+    <color name="hr_blue_i">#3498DB</color>
+    <color name="hr_green_i">#2ECC71</color>
+    <color name="hr_yellow_i">#F4D03F</color>
+    <color name="hr_orange_i">#F5B041</color>
+    <color name="hr_red_i">#E74C3C</color>
+    <color name="hr_blue">#FF21618C</color>
+    <color name="hr_green">#FF196F3D</color>
+    <color name="hr_yellow">#FF9A7D0A</color>
+    <color name="hr_orange">#FFB9770E</color>
+    <color name="hr_red">#FF922B21</color>
+
+    <color name="white_50">#88FFFFFF</color>
+    <color name="transparent">#00FFFFFF</color>
+</resources>

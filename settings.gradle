@@ -1,0 +1,3 @@
+rootProject.name = "Cycling Computer"
+include ':app'
+include ':app:ant'

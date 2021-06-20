@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="preferenceScreen">
+    <PreferenceCategory android:title="Data Fields"
+        android:key="dataFieldCategory">
+        <Preference
+            android:title="@string/ride"
+            android:key="KEY_BIKE_DATA_FIELDS"
+            android:icon="@drawable/ic_bike_black_24dp">
+        </Preference>
+        <Preference
+            android:title="@string/run"
+            android:key="KEY_RUN_DATA_FIELDS"
+            android:icon="@drawable/ic_run_black_24dp">
+        </Preference>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/connect"
+        android:key="connectCategory">
+        <Preference
+            android:title="@string/strava"
+            android:key="KEY_STRAVA_LOGIN"
+            android:icon="@drawable/strava_icon">
+        </Preference>
+        <Preference
+            android:title="@string/ant_search"
+            android:key="KEY_ANT_SEARCH"
+            android:icon="@drawable/ic_antplus">
+        </Preference>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/athelete_settings"
+        android:key="athleteCategory">
+        <EditTextPreference
+            android:key="KEY_HR_MAX"
+            android:title="@string/hr_max"
+            android:inputType="number"/>
+        <EditTextPreference
+            android:key="KEY_FTP"
+            android:title="@string/ftp"
+            android:inputType="number"/>
+        <CheckBoxPreference
+            android:key="KEY_HR_ZONE_COLOR"
+            android:title="@string/hr_zone_color"/>
+        <CheckBoxPreference
+            android:key="KEY_POWER_ZONE_COLOR"
+            android:title="@string/power_zone_color"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/bike_settings"
+        android:key="bikeCategory">
+        <EditTextPreference
+            android:key="KEY_WHEEL"
+            android:title="@string/wheel"
+            android:inputType="number"/>
+        <CheckBoxPreference
+            android:key="KEY_SPEED_DEFAULT"
+            android:title="Use ANT+ Sensor for Speed"
+            android:summary="If not checked GPS will be default."/>
+        <CheckBoxPreference
+            android:key="KEY_DISTANCE_DEFAULT"
+            android:title="Use ANT+ Sensor for Distance"
+            android:summary="If not checked GPS will be default."/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/app_settings"
+        android:key="appSettingsCategory">
+        <CheckBoxPreference
+            android:key="KEY_METRIC"
+            android:defaultValue="false"
+            android:title="@string/metric"/>
+        <CheckBoxPreference
+            android:key="KEY_INVERT_COLOR"
+            android:defaultValue="false"
+            android:title="@string/invert_colors"
+            android:summary="@string/invert_colors_desc"/>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="KEY_KEEP_AWAKE"
+            android:title="@string/keep_awake"
+            android:summary="@string/keep_awake_desc"/>
+        <CheckBoxPreference
+            android:key="KEY_DEBUG"
+            android:defaultValue="false"
+            android:title="@string/debug"/>
+    </PreferenceCategory>
+</PreferenceScreen>

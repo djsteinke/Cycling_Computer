@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_header">20dp</dimen>
+    <dimen name="text_header_unit">12dp</dimen>
+    <dimen name="text_base">14dp</dimen>
+</resources>
