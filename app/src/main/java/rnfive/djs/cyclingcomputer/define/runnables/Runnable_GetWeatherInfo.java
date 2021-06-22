@@ -36,6 +36,7 @@ public class Runnable_GetWeatherInfo implements Runnable {
     private static void command() {
         running = true;
         try {
+            Log.d(TAG, "Runnable_GetWeatherInfo.command()");
             URL url = new URL("https://api.darksky.net/forecast/" + DARK_SKY_KEY + "/" +
                     data.getLatitude() + "," + data.getLongitude() +
                     "?exclude=minutely,hourly,daily,alerts,flags&units=si");

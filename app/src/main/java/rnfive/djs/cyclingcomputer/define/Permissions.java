@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import rnfive.djs.cyclingcomputer.define.enums.ConfirmResult;
 import rnfive.djs.cyclingcomputer.define.enums.ConfirmType;
 import rnfive.djs.cyclingcomputer.define.listeners.ConfirmListener;
@@ -21,12 +22,12 @@ public final class Permissions implements ActivityCompat.OnRequestPermissionsRes
     private Permissions() {}
 
     public static void checkAppPermissions(Activity activity, ConfirmListener confirmListener) {
-        MainActivity.bWriteGranted = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-        MainActivity.bGpsGranted = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        MainActivity.bInternetGranted = ActivityCompat.checkSelfPermission(activity, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED;
+        MainActivity.bWriteGranted = ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        MainActivity.bGpsGranted = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        MainActivity.bInternetGranted = ContextCompat.checkSelfPermission(activity, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-            MainActivity.bGpsGranted = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
+            MainActivity.bGpsGranted = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
 
         if (!MainActivity.bGpsGranted || !MainActivity.bInternetGranted || !MainActivity.bWriteGranted) {

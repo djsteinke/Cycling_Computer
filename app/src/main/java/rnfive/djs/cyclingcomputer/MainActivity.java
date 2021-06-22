@@ -436,19 +436,19 @@ public class MainActivity extends AppCompatActivity
                         break;
                     case DataFields.POWER_3S:
                         if (bBPExists && data.getPower() != -1) {
-                            sValue = String.valueOf(Arrays.getAvg(data.getPower3sArray()));
+                            sValue = String.valueOf(Math.round(Arrays.getAvg(data.getPower3sArray())));
                         }
                         bPower = true;
                         break;
                     case DataFields.POWER_10S:
                         if (bBPExists && data.getPower() != -1) {
-                            sValue = String.valueOf(Arrays.getAvg(data.getPower10sArray()));
+                            sValue = String.valueOf(Math.round(Arrays.getAvg(data.getPower10sArray())));
                         }
                         bPower = true;
                         break;
                     case DataFields.POWER_30S:
                         if (bBPExists && data.getPower() != -1) {
-                            sValue = String.valueOf(Arrays.getAvg(data.getPower30sArray()));
+                            sValue = String.valueOf(Math.round(Arrays.getAvg(data.getPower30sArray())));
                         }
                         bPower = true;
                         break;
@@ -538,7 +538,7 @@ public class MainActivity extends AppCompatActivity
                         }
                         break;
                     case DataFields.ALTITUDE:
-                        sValue = Strings.getAltitudeString((float) data.getAltitude());
+                        sValue = Strings.getAltitudeString((float) data.getAltitudeValue());
                         break;
                     case DataFields.TIME_OF_DAY:
                         isSS = true;

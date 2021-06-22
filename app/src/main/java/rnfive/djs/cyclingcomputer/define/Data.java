@@ -5,24 +5,22 @@ import android.location.Location;
 import lombok.Getter;
 import lombok.Setter;
 
+import static rnfive.djs.cyclingcomputer.define.StaticVariables.speedMin;
+
 @Getter
 @Setter
 public class Data {
 
     // Location
+    private Altitude altitude = new Altitude();
     private double latitude;
     private double longitude;
     private Location locationPrev;
     private int gpsAccuracy;
-    private double altitude;
     private float speedGpsPrev;
     private float speedGps;
     private double distanceGps;
     private double distanceGpsLap;
-    private double ascentTot;
-    private double ascentLap;
-    private double descentTot;
-    private double descentLap;
     private double distanceTot;
     private double distanceLap;
     private double distancePrev;
@@ -105,6 +103,25 @@ public class Data {
 
     public Data() {}
 
+    public void setAltitudeValue(double altitude) {
+        this.altitude.setAltitude(altitude);
+    }
+    public double getAltitudeValue() {
+        return altitude.getAltitude();
+    }
+    public double getAscentTot() {
+        return altitude.getAscent();
+    }
+    public double getAscentLap() {
+        return altitude.getAscentLap();
+    }
+    public double getDescentTot() {
+        return altitude.getDescent();
+    }
+    public double getDescentLap() {
+        return altitude.getDescentLap();
+    }
+
     public void updatePower() {
         if (StaticVariables.bBPExists) {
             Arrays.updateArray(power3sArray, power);
@@ -119,14 +136,15 @@ public class Data {
                     powerNZ = powerAvgArray[0]/ powerAvgArray[1];
                 if (powerAvgArray[2] > 0)
                     powerAvg = powerAvgArray[0]/powerAvgArray[2];
+
                 powerAvgLapArray[0] += power;
-                powerAvgArray[2] ++;
+                powerAvgLapArray[2] ++;
                 if (power > 0)
                     powerAvgLapArray[1] ++;
                 if (powerAvgLapArray[1]>0)
                     powerNZLap = powerAvgLapArray[0]/ powerAvgLapArray[1];
                 if (powerAvgArray[2] > 0)
-                    powerAvgLap = powerAvgLapArray[0]/powerAvgArray[2];
+                    powerAvgLap = powerAvgLapArray[0]/powerAvgLapArray[2];
             }
         }
         powerMax = Math.max(power, powerMax);
@@ -179,7 +197,10 @@ public class Data {
             }
         }
 
-        speed = (antSpeedUsed ? speedSen : speedGps);
+        float speedTmp = (antSpeedUsed ? speedSen : speedGps);
+        if (speedTmp >= speedMin)
+            speed = speedTmp;
+
         if (msTotM > 0)
             speedAvg = (float) distanceTot/(msTotM/1000.0f);
         if (msLapM > 0)
@@ -228,14 +249,11 @@ public class Data {
         }
     }
 
-    public void updateAscent(double last, double curr) {
-        if (last > curr) {
-            descentLap += last-curr;
-            descentTot += last-curr;
-        } else {
-            ascentLap += curr-last;
-            ascentTot += curr-last;
-        }
+    void updatePressure(double p) {
+        altitude.updatePressure(p);
+    }
+    public void updateAltitude() {
+        altitude.updateAltitude();
     }
 
     public void addMS(long ms) {
@@ -258,8 +276,8 @@ public class Data {
         distanceLap = 0;
         msLap = 0;
         msLapM = 0;
-        ascentLap = 0;
-        descentLap = 0;
+        altitude.setAscentLap(0.0d);
+        altitude.setDescentLap(0.0d);
         speedMaxLap = 0;
         speedAvgLap = 0;
         hrMaxLap = 0;

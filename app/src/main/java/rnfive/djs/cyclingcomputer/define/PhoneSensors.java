@@ -102,12 +102,8 @@ public class PhoneSensors implements SensorEventListener {
 
                     break;
                 case Sensor.TYPE_PRESSURE :
-                    Lists.addValue(pressureList, event.values[0], pressureListSize);
-                    pressure = Lists.getAvg(pressureList);
-                    //Log.d(TAG, "Pressure[" + event.values[0] + "]");
-                    if (pressureCurr == 0)
-                        pressureCurr = event.values[0];
-                    pressureCurr = StaticVariables.lowPassFilter( (double) event.values[0], pressureCurr);
+                    pressure = event.values[0];
+                    data.updatePressure(pressure);
                     break;
                 case Sensor.TYPE_ACCELEROMETER :
                     data.setGravityArray(Filters.lowPassFilter(event.values.clone(), data.getGravityArray()));

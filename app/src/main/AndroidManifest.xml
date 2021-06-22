@@ -20,6 +20,7 @@
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="@xml/my_backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -87,6 +88,5 @@
             </activity>
             <service android:name="rnfive.djs.cyclingcomputer.service.Service_Bluetooth"/>
             -->
-        </application>
-
-    </manifest>
+    </application>
+</manifest>

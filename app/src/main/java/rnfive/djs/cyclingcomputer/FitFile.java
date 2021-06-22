@@ -144,7 +144,7 @@ public class FitFile {
 
     public void recordMesg() {
         RecordMesg var6 = new RecordMesg();
-        var6.setAltitude((float) data.getAltitude());
+        var6.setAltitude((float) data.getAltitudeValue());
         var6.setDistance((float) data.getDistanceTot());
         if (bBCExists || bBPCadExists)
             var6.setCadence((short) data.getCadence());

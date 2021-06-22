@@ -71,6 +71,7 @@ public class Service_Recording extends Service implements LocationListener, IDev
 
     // Location
     private LocationManager locationManager;
+    public static Location location;
     private static boolean bGpsRunning;
     public static boolean serviceRunning;
 
@@ -78,6 +79,11 @@ public class Service_Recording extends Service implements LocationListener, IDev
     private AntPlus_HR hrAnt;
     private AntPlus_BS bsAnt;
     private AntPlus_BC bcAnt;
+
+    private boolean notificationRunning;
+    private boolean updateValuesRunning;
+    private boolean antPlusRunning;
+    private boolean recordRunning;
 
     private final Handler notificationHandler = new Handler();
     private final Handler updateValuesHandler = new Handler();
@@ -92,7 +98,6 @@ public class Service_Recording extends Service implements LocationListener, IDev
             getRecordHandler().postDelayed(this,(MainActivity.sport== Sport.RUNNING?2000:1000));
         }
     };
-
     private final Runnable antPlusRunnable = new Runnable() {
         @Override
         public void run() {
@@ -121,6 +126,8 @@ public class Service_Recording extends Service implements LocationListener, IDev
         createNotificationChannel();
         setNotificationMessage();
         data = new Data();
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Log.d(TAG, "onCreate()");
     }
 
     @Override
@@ -135,17 +142,14 @@ public class Service_Recording extends Service implements LocationListener, IDev
         switch (action) {
             case START_SERVICE:
                 bServiceStarted = true;
-                notificationHandler.post(notificationRunnable);
-                updateValuesHandler.post(updateValuesRunnable);
-                locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                serviceRunning = true;
+                startUpdateValues();
+                startNotification();
                 startAntPlus();
                 startGps();
-                setNotificationMessage();
-                serviceRunning = true;
                 break;
             case START_RECORDING:
-                if (!bRecording)
-                    startRecording();
+                startRecording();
                 notificationMsg = "Recording";
                 setNotificationMessage();
                 bRecording = true;
@@ -160,15 +164,12 @@ public class Service_Recording extends Service implements LocationListener, IDev
                     bpAnt.zero();
                 break;
             case STOP_SERVICE:
-                notificationHandler.removeCallbacks(notificationRunnable);
-                updateValuesHandler.removeCallbacks(updateValuesRunnable);
-                bServiceStarted = false;
+                stopUpdateValues();
                 stopAntPlus();
                 stopGps();
-                if (bRecording) {
-                    bRecording = false;
-                    stopRecording();
-                }
+                stopRecording();
+                stopNotification();
+                bServiceStarted = false;
                 serviceRunning = false;
                 stopSelf();
                 break;
@@ -328,26 +329,58 @@ public class Service_Recording extends Service implements LocationListener, IDev
         }
     }
 
+    private void startUpdateValues() {
+        if (!updateValuesRunning)
+            updateValuesHandler.post(updateValuesRunnable);
+        updateValuesRunning = true;
+        Log.d(TAG, "startRecording()");
+    }
+
+    private void stopUpdateValues() {
+        updateValuesHandler.removeCallbacks(updateValuesRunnable);
+        updateValuesRunning = false;
+        Log.d(TAG, "startRecording()");
+    }
+
+    private void startNotification() {
+        if (!notificationRunning)
+            notificationHandler.post(notificationRunnable);
+        notificationRunning = true;
+        Log.d(TAG, "startRecording()");
+    }
+
+    private void stopNotification() {
+        notificationHandler.removeCallbacks(notificationRunnable);
+        notificationRunning = false;
+        Log.d(TAG, "startRecording()");
+    }
+
     private void startRecording() {
         if (!bRecording)
             recordHandler.post(recordRunnable);
+        bRecording = true;
         Log.d(TAG, "startRecording()");
     }
 
     private void stopRecording() {
         recordHandler.removeCallbacks(recordRunnable);
+        bRecording = false;
         Log.d(TAG, "startRecording()");
     }
 
     private void startAntPlus() {
-        antPlusHandler.postDelayed(antPlusRunnable,5000);
+        if (!antPlusRunning)
+            antPlusHandler.postDelayed(antPlusRunnable,5000);
+        antPlusRunning = true;
         Log.d(TAG, "startAntPlus()");
     }
 
     private void stopAntPlus() {
-        antPlusHandler.removeCallbacks(antPlusRunnable);
-        if (!StaticVariables.bStarted)
+        if (!StaticVariables.bStarted) {
             disconnectAntPlus();
+            antPlusHandler.removeCallbacks(antPlusRunnable);
+            antPlusRunning = false;
+        }
         Log.d(TAG, "stopAntPlus()");
     }
 
@@ -401,6 +434,7 @@ public class Service_Recording extends Service implements LocationListener, IDev
     public void onLocationChanged(Location location) {
 
         if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
+            this.location = location;
             //b_gps_has_accuracy = false;
             StaticVariables.geomagneticField = new GeomagneticField(
                     (float) location.getLatitude(),
@@ -416,7 +450,7 @@ public class Service_Recording extends Service implements LocationListener, IDev
             data.setLatitude(location.getLatitude());
             data.setLongitude(location.getLongitude());
             if (phoneSensors.getSensorPressure() == null) {
-                data.setAltitude(location.getAltitude());
+                data.setAltitudeValue(location.getAltitude());
                 // TODO - add gps altitude delta
             }
 
@@ -445,6 +479,9 @@ public class Service_Recording extends Service implements LocationListener, IDev
     public void onDestroy() {
         super.onDestroy();
         stopAntPlus();
+        stopUpdateValues();
+        stopNotification();
+        stopRecording();
     }
 
     @Nullable
