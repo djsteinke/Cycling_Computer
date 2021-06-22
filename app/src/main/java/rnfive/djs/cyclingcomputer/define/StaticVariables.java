@@ -3,24 +3,36 @@ package rnfive.djs.cyclingcomputer.define;
 import android.content.Context;
 import android.content.res.Resources;
 import android.hardware.GeomagneticField;
+import android.util.Log;
 import android.util.TypedValue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class StaticVariables {
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
+
+public final class StaticVariables {
 
     public static final String DARK_SKY_KEY = "f71cb523e435a8574e97de147922db4d";
 
-    public static boolean bStarted = false;
-    public static boolean bPaused = false;
-    public static boolean bMoving = false;
+    public static boolean bStarted;
+    public static boolean bPaused;
+    public static boolean bMoving;
 
-    public static boolean bHRExists = false;
-    public static boolean bBPExists = false;
-    public static boolean bBPCadExists = false;
-    public static boolean bBCExists = false;
-    public static boolean bBSExists = false;
+    public static boolean bHRExists;
+    public static boolean bBPExists;
+    public static boolean bBPCadExists;
+    public static boolean bBCExists;
+    public static boolean bBSExists;
 
     public static int bcAntBattery = -1;
     public static int bsAntBattery = -1;
@@ -28,17 +40,17 @@ public class StaticVariables {
     public static int hrAntBattery = -1;
 
     // Preferences
-    public static boolean bAntSpeed = false;
-    public static boolean bKeepAwake = false;
-    public static boolean bPowerZoneColors = false;
-    public static boolean bHrZoneColors = false;
-    public static boolean bMetric = false;
-    public static boolean bDebug = false;
-    public static boolean bInvert = false;
-    public static boolean bAntDistance = false;
-    public static int iWheelSize = 0;
-    public static int iAthleteHrMax = 0;
-    public static int iAthleteFtp = 0;
+    public static boolean bAntSpeed;
+    public static boolean bKeepAwake;
+    public static boolean bPowerZoneColors;
+    public static boolean bHrZoneColors;
+    public static boolean bMetric;
+    public static boolean bDebug;
+    public static boolean bInvert;
+    public static boolean bAntDistance;
+    public static int iWheelSize;
+    public static int iAthleteHrMax;
+    public static int iAthleteFtp;
 
     public static DarkSkyResponse darkSkyResponse;
 
@@ -46,9 +58,9 @@ public class StaticVariables {
 
     public static final float speedMin = 0.5f;
 
-    public static long lastUpdateValuesMS = 0;
+    public static long lastUpdateValuesMS;
 
-    public StaticVariables() {}
+    private StaticVariables() {}
 
     public static <T> T getClassFromJson(String inJson, Class<T> t) {
         Gson gson = new GsonBuilder().create();
@@ -79,5 +91,66 @@ public class StaticVariables {
         Resources.Theme theme = context.getTheme();
         theme.resolveAttribute(val, typedValue, true);
         return typedValue.data;
+    }
+
+    public static <T> T getFromJson(String json, Class<T> tClass) {
+        Gson gson = new GsonBuilder().create();
+        return gson.fromJson(json, tClass);
+    }
+
+    public static <T> String getToJson(T t) {
+        Gson gson = new GsonBuilder().create();
+        return gson.toJson(t);
+    }
+
+    public static void saveFile(File dir, String fileName, String contents) {
+        File file = new File(dir,fileName);
+        boolean process = file.exists();
+        if (!file.exists()) {
+            try {
+                process = file.createNewFile();
+            } catch (IOException e) {
+                Log.e("saveFile()", "Failed to create new file " + file + ". Error: " + e.getMessage());
+            }
+        }
+        if (process) {
+            try (FileWriter fw = new FileWriter(file)) {
+                write(fw, contents);
+            } catch (IOException e) {
+                Log.e("saveFile()", "Failed to write file " + file + ". Error: " + e.getMessage());
+            }
+        }
+    }
+
+    public static <T> T loadFile(File dir, String fileName, Class<T> tClass) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        File file = new File(dir,fileName);
+        try (FileInputStream fis = new FileInputStream(file)) {
+            String contents = read(fis);
+            Log.d("loadFile()", contents);
+            return getFromJson(contents, tClass);
+        } catch (FileNotFoundException e) {
+            Log.e("loadFile()", "File " + file + " not found.");
+        } catch (IOException e) {
+            Log.e("loadFile()", "Load " + file + " failed. Error: " + e.getMessage());
+        }
+        return tClass.getConstructor().newInstance();
+    }
+
+    private static void write(FileWriter fw, String contents) throws IOException {
+        try (BufferedWriter bw = new BufferedWriter(fw)) {
+            bw.write(contents);
+        }
+    }
+
+    private static String read(FileInputStream fis) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        try(BufferedReader bfr = new BufferedReader(new InputStreamReader(fis))) {
+            String line = bfr.readLine();
+            while (line != null) {
+                sb.append(line).append("\n");
+                line = bfr.readLine();
+            }
+        }
+        return sb.toString();
     }
 }

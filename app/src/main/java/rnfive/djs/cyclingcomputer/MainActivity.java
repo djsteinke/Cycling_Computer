@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final int MY_PERMISSIONS_REQUEST = 1;
 
-    public static Preferences preferences = new Preferences();
+    public static Preferences preferences;
     public static Devices devices = new Devices();
 
     private static final FieldDef fieldDef = new FieldDef();
@@ -614,7 +614,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void getPreferences() {
-        preferences.load();
+        preferences = Preferences.load();
+        if (preferences == null) {
+            Log.e(TAG, "preferences is null.");
+        }
         iAthleteHrMax = preferences.getIHrMax();
         iAthleteFtp = preferences.getIFtp();
         bHrZoneColors = preferences.isBHrZoneColor();
@@ -639,6 +642,7 @@ public class MainActivity extends AppCompatActivity
             tvDebug.setVisibility(View.VISIBLE);
         else
             tvDebug.setVisibility(View.GONE);
+        preferences.save();
     }
 
     private void setButtonVisibility(int val) {
