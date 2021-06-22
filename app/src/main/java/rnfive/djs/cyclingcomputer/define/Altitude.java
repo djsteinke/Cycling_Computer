@@ -23,7 +23,8 @@ class Altitude {
     private static final double altitudeCutoff = 0.5d;
     private static final double sensorCutoff = 75.0d;
     private static final int listSize = 5;
-    private static final int calculateDist = 10;
+    private static final int minDistGrade = 10;
+    private static final int minDistAscent = 25;
 
     private double altitude;
     private double ascent;
@@ -32,10 +33,10 @@ class Altitude {
     private double descentLap;
     private double grade;
 
-    private List<Location> locationList = new ArrayList<>();
-    private List<Double> altitudeList = new ArrayList<>();
-    private double lastAlt;
-    private Location lastLoc;
+    private double ascentLastAlt;
+    private Location ascentLastLoc;
+    private Location gradeLastLoc;
+    private List<Point> gradePoints = new ArrayList<>();
     private double absolutePressure = 1013.25;
     private double pressure;
     private double sensorPressure;
@@ -69,31 +70,28 @@ class Altitude {
             altitude = alt;
 
         if (bMoving) {
-            if (lastAlt == 0)
-                lastAlt = alt;
-            if (lastLoc == null)
-                lastLoc = location;
-            double distanceP2P = location.distanceTo(lastLoc);
-            if (distanceP2P >= calculateDist) {
-                updateAscent(altitude, lastAlt);
-                updateGrade(distanceP2P, altitude, lastAlt);
+            updateGradePoints();
+            if (ascentLastAlt == 0)
+                ascentLastAlt = alt;
+            if (ascentLastLoc == null)
+                ascentLastLoc = location;
+            double p2p = location.distanceTo(ascentLastLoc);
+            if (p2p >= minDistAscent) {
+                updateAscent(altitude, ascentLastAlt);
+                ascentLastLoc = location;
+                ascentLastAlt = altitude;
             }
-            /*
-            addValue(locationList, location, 10);
-            addValue(altitudeList, altitude, 10);
+        }
+    }
 
-            int i = 0;
-            for (Location l : locationList) {
-                double distanceP2P = location.distanceTo(l);
-                if (distanceP2P >= calculateDist) {
-                    updateAscent(altitude, altitudeList.get(i));
-                    updateGrade(distanceP2P, altitude, altitudeList.get(i));
-                    break;
-                }
-                i++;
-            }
-
-             */
+    private void updateGradePoints() {
+        double p2p = location.distanceTo(gradeLastLoc);
+        if (p2p >= minDistGrade) {
+            Point p = new Point(altitude, p2p);
+            addValue(gradePoints, p, 3);
+            if (gradePoints.size() > 2)
+                updateGrade();
+            gradeLastLoc = location;
         }
     }
 
@@ -105,15 +103,19 @@ class Altitude {
         return (1 - StrictMath.pow(pressure / absolutePressure, 1 / 5.25588)) / 0.0000225577;
     }
 
-    private static void updateGrade(double distanctP2P, double alt1, double alt2) {
-        double altDiff = alt1 - alt2;
-        double grade = altDiff/distanctP2P*100.0f;
-        if (grade < 50)
-            data.setGrade((float) grade);
+    private void updateGrade() {
+        Point p1 = gradePoints.get(0);
+        Point p2 = gradePoints.get(1);
+        Point p3 = gradePoints.get(2);
+        double alt = p1.getAltitude() - p3.getAltitude();
+        double dist = p1.getDistance() + p2.getDistance() + p3.getDistance();
+        double g = alt/dist*100.0f;
+        if (g < 50)
+            data.setGrade((float) g);
     }
 
     private void updateAscent(double newVal, double oldVal) {
-        double diff = Math.round((newVal-oldVal)*2)/2.0d;
+        double diff = newVal - oldVal;
         if (bStarted && bMoving) {
             if (diff > 0) {
                 ascent += diff;
@@ -122,6 +124,19 @@ class Altitude {
                 descent += diff;
                 descentLap += diff;
             }
+        }
+    }
+
+    @Getter
+    @Setter
+    private static class Point {
+        private double altitude;
+        private double distance;
+
+        Point() {}
+        Point(double altitude, double distance) {
+            this.altitude = altitude;
+            this.distance = distance;
         }
     }
 
