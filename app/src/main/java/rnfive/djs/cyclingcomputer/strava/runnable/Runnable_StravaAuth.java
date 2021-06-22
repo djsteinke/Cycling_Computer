@@ -34,7 +34,7 @@ public class Runnable_StravaAuth implements Runnable {
 
     @Override
     public void run() {
-        run(this.context, this.type, this.inString);
+        run(context, type, inString);
     }
 
     public static void run(Context context, AuthenticationType type, String inValue) {
@@ -72,47 +72,49 @@ public class Runnable_StravaAuth implements Runnable {
             Log.e(TAG, "Strava Error: " + e.getMessage());
             return;
         }
-        final AuthenticationResponse response = result;
         Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(() -> {
-            if (response != null) {
-                switch (type) {
-                    case AUTHENTICATE:
-                        MainActivity.token = new Token()
-                                .withTokenType(response.getTokenType())
-                                .withAccessToken(response.getAccessToken())
-                                .withRefreshToken(response.getRefreshToken())
-                                .expiresAt(response.getExpiresAt())
-                                .withUsername(response.getAthlete().getUsername())
-                                .withFirstName(response.getAthlete().getFirstName())
-                                .withLastName(response.getAthlete().getLastName())
-                                .withPath(MainActivity.filePathProfile);
+        AuthenticationResponse finalResult = result;
+        handler.post(() -> handleResponse(type, finalResult, context));
+    }
+
+    private static void handleResponse(AuthenticationType type, AuthenticationResponse response, Context context) {
+        if (response != null) {
+            switch (type) {
+                case AUTHENTICATE:
+                    MainActivity.token = new Token()
+                            .withTokenType(response.getTokenType())
+                            .withAccessToken(response.getAccessToken())
+                            .withRefreshToken(response.getRefreshToken())
+                            .expiresAt(response.getExpiresAt())
+                            .withUsername(response.getAthlete().getUsername())
+                            .withFirstName(response.getAthlete().getFirstName())
+                            .withLastName(response.getAthlete().getLastName())
+                            .withPath(MainActivity.filePathProfile);
+                    MainActivity.token.save();
+                    MainActivity.toastListener.onToast("Logged into Strava as " + MainActivity.token.getUsername());
+                    break;
+                case REFRESH_TOKEN:
+                    if (MainActivity.token != null) {
+                        MainActivity.token.setAccessToken(response.getAccessToken());
+                        MainActivity.token.setRefreshToken(response.getRefreshToken());
+                        MainActivity.token.setExpirationDate(response.getExpiresAt());
                         MainActivity.token.save();
-                        MainActivity.toastListener.onToast("Logged into Strava as " + MainActivity.token.getUsername());
-                        break;
-                    case REFRESH_TOKEN:
-                        if (MainActivity.token != null) {
-                            MainActivity.token.setAccessToken(response.getAccessToken());
-                            MainActivity.token.setRefreshToken(response.getRefreshToken());
-                            MainActivity.token.setExpirationDate(response.getExpiresAt());
-                            MainActivity.token.save();
-                            MainActivity.toastListener.onToast("Logged into Strava as " + MainActivity.token.getUsername());
-                        }
-                        break;
-                }
-            } else {
-                if (type == AuthenticationType.DEAUTHORIZE) {
-                    MainActivity.token.delete();
-                    MainActivity.token = null;
-                    MainActivity.toastListener.onToast("Logged out of Strava.");
-                }
+                        //MainActivity.toastListener.onToast("Logged into Strava as " + MainActivity.token.getUsername());
+                    }
+                    break;
             }
-            if (context != null) {
-                SharedPreferences mainPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-                SharedPreferences.Editor editor = mainPrefs.edit();
-                editor.putString("KEY_STRAVA_LOGIN", (MainActivity.token != null ? MainActivity.token.getUsername() : ""));
-                editor.apply();
+        } else {
+            if (type == AuthenticationType.DEAUTHORIZE) {
+                MainActivity.token.delete();
+                MainActivity.token = null;
+                MainActivity.toastListener.onToast("Logged out of Strava.");
             }
-        });
+        }
+        if (context != null) {
+            SharedPreferences mainPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences.Editor editor = mainPrefs.edit();
+            editor.putString("KEY_STRAVA_LOGIN", (MainActivity.token != null ? MainActivity.token.getUsername() : ""));
+            editor.apply();
+        }
     }
 }

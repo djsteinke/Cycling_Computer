@@ -19,13 +19,18 @@ import androidx.appcompat.content.res.AppCompatResources;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import lombok.Getter;
+import lombok.Setter;
 import rnfive.djs.cyclingcomputer.define.DataFields;
 import rnfive.djs.cyclingcomputer.define.Display;
 import rnfive.djs.cyclingcomputer.define.FieldDef;
 import com.dsi.ant.plugins.antplus.pcc.defines.BatteryStatus;
 
+import java.util.regex.Pattern;
+
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static rnfive.djs.cyclingcomputer.MainActivity.activityDataFields;
 import static rnfive.djs.cyclingcomputer.MainActivity.black;
 import static rnfive.djs.cyclingcomputer.MainActivity.fragWidth;
@@ -37,12 +42,16 @@ import static rnfive.djs.cyclingcomputer.define.StaticVariables.bPowerZoneColors
 import static rnfive.djs.cyclingcomputer.define.StaticVariables.iAthleteFtp;
 import static rnfive.djs.cyclingcomputer.define.StaticVariables.iAthleteHrMax;
 
+@Getter
+@Setter
 public class Fragment_DataFields extends Fragment {
 
     private static final String TAG = "Fragment_DataFields";
+    private static final Pattern COMPILE = Pattern.compile("[0-9]+");
     private GridLayout gridLayout;
     private ScrollView scrollView;
     private Context context;
+    private static int dataFieldsLength;
     private static final FieldDef fDef = new FieldDef();
     private static final int[][] fieldDef = fDef.toArray();
     private final View[] cellList = new View[fDef.getSize()];
@@ -51,13 +60,10 @@ public class Fragment_DataFields extends Fragment {
     public Fragment_DataFields() {
     }
 
-    public void setContext(Context context) {
-        this.context = context;
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        dataFieldsLength = activityDataFields.length;
         View newView = inflater.inflate(R.layout.fragment_data_fields, container, false);
         gridLayout = newView.findViewById(R.id.data_field_grid_layout);
         gridLayout.setRowCount(fDef.getSize());
@@ -76,9 +82,9 @@ public class Fragment_DataFields extends Fragment {
 
     private void addCells() {
         int i = 0;
-        final LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
-        this.margin = Display.getPxFromDp(0.5f);
-        for (int[] i$ : fieldDef) {
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
+        margin = Display.getPxFromDp(0.5f);
+        for (int[] def : fieldDef) {
             /*
             GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
             layoutParams.columnSpec = GridLayout.spec(i$[1],i$[2], GridLayout.FILL);
@@ -90,7 +96,7 @@ public class Fragment_DataFields extends Fragment {
                 layoutParams.leftMargin = -margin;
                 */
             FrameLayout rootLayout = new FrameLayout(context);
-            FrameLayout.LayoutParams rootParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT);
+            FrameLayout.LayoutParams rootParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
             rootLayout.setLayoutParams(rootParams);
 
             if (inflater != null) {
@@ -100,9 +106,9 @@ public class Fragment_DataFields extends Fragment {
                 TextView tv = newView.findViewById(R.id.cell_value);
                 LinearLayout unit = newView.findViewById(R.id.cell_unit_layout);
                 LinearLayout mainLL = newView.findViewById(R.id.cell_ll);
-                switch (i$[2]) {
+                switch (def[2]) {
                     case 6:
-                        tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 60);
+                        tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 80);
                         mainLL.setPadding(mainLL.getPaddingLeft(), Display.getPxFromDp(5), mainLL.getPaddingRight(), 0);
                         unit.setPadding(0, Display.getPxFromDp(5), 0, 0);
                         break;
@@ -112,7 +118,7 @@ public class Fragment_DataFields extends Fragment {
                         unit.setPadding(0, Display.getPxFromDp(10), 0, 0);
                         break;
                     default:
-                        tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 45);
+                        tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 50);
                         mainLL.setPadding(mainLL.getPaddingLeft(), Display.getPxFromDp(8), mainLL.getPaddingRight(), 0);
                         unit.setPadding(0, Display.getPxFromDp(8), 0, 0);
                         break;
@@ -124,18 +130,18 @@ public class Fragment_DataFields extends Fragment {
     }
 
     private GridLayout.LayoutParams getLayoutParams(int i) {
-        int[] i$ = fieldDef[i];
+        int[] def = fieldDef[i];
         GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
-        layoutParams.columnSpec = GridLayout.spec(i$[1],i$[2], GridLayout.FILL);
-        layoutParams.rowSpec = GridLayout.spec(i$[0],1, GridLayout.FILL);
-        layoutParams.width = fragWidth/(6/i$[2]);
+        layoutParams.columnSpec = GridLayout.spec(def[1],def[2], GridLayout.FILL);
+        layoutParams.rowSpec = GridLayout.spec(def[0],1, GridLayout.FILL);
+        layoutParams.width = fragWidth/(6/def[2]);
         layoutParams.bottomMargin = (cellsExistBellow(i)?-margin:0);
-        layoutParams.leftMargin = (i$[1]!=0?-margin:0);
+        layoutParams.leftMargin = (def[1]!=0?-margin:0);
         return layoutParams;
     }
 
     private boolean cellsExistBellow(int i) {
-        for (int j=i; j<activityDataFields.length;j++) {
+        for (int j=i; j<dataFieldsLength;j++) {
             if (fieldDef[i][0] != fieldDef[j][0]) {
                 Integer[] map = DataFields.dataFieldMap.get(activityDataFields[j], DataFields.dataFieldMapDefault);
                 if (map[0] != -1 && activityDataFields[j] != DataFields.NONE) {
@@ -157,9 +163,10 @@ public class Fragment_DataFields extends Fragment {
         if (result) {
             j = i+1;
             rowNext = fieldDef[j][0];
-            while (rowOrig == rowNext && j < activityDataFields.length) {
+            while (rowOrig == rowNext && j < dataFieldsLength) {
                 if (activityDataFields[j] != DataFields.EMPTY) {
                     result = false;
+                    break;
                 }
                 j++;
                 rowNext = fieldDef[j][0];
@@ -171,6 +178,7 @@ public class Fragment_DataFields extends Fragment {
             while (rowOrig == rowNext && j > 0) {
                 if (activityDataFields[j] != DataFields.EMPTY) {
                     result = false;
+                    break;
                 }
                 j--;
                 rowNext = fieldDef[j][0];
@@ -207,7 +215,7 @@ public class Fragment_DataFields extends Fragment {
             } else
                 cellList[pos].setVisibility(View.INVISIBLE);
         } else {
-            cellList[pos].setVisibility(View.VISIBLE);
+            cellList[pos].setVisibility(VISIBLE);
             cellList[pos].setBackground(AppCompatResources.getDrawable(context, R.drawable.rectangle_outline_05dp_gray));
             cellList[pos].setLayoutParams(getLayoutParams(pos));
             TextView title = cellList[pos].findViewById(R.id.cell_title);
@@ -223,7 +231,7 @@ public class Fragment_DataFields extends Fragment {
             unitLine.setColorFilter((bInvert?black:white));
             ImageView arrow = cellList[pos].findViewById(R.id.cell_image);
             if (dataField == DataFields.WIND) {
-                arrow.setVisibility(View.VISIBLE);
+                arrow.setVisibility(VISIBLE);
                 arrow.getLayoutParams().height = (int) value.getTextSize();
                 arrow.getLayoutParams().width = (int) value.getTextSize();
                 arrow.setColorFilter((bInvert?black:white));
@@ -234,8 +242,10 @@ public class Fragment_DataFields extends Fragment {
                 title.setText(getString(map[1]));
             else
                 title.setText(getString(map[0]));
-            if (map[2] != -1) {
-                unitLayout.setVisibility(View.VISIBLE);
+            if (map[2] == -1) {
+                unitLayout.setVisibility(GONE);
+            } else {
+                unitLayout.setVisibility(VISIBLE);
                 if (bMetric)
                     unitTop.setText(getString(map[3]));
                 else
@@ -244,15 +254,13 @@ public class Fragment_DataFields extends Fragment {
                     unitLine.setVisibility(GONE);
                     unitBottom.setVisibility(GONE);
                 } else {
-                    unitLine.setVisibility(View.VISIBLE);
-                    unitBottom.setVisibility(View.VISIBLE);
+                    unitLine.setVisibility(VISIBLE);
+                    unitBottom.setVisibility(VISIBLE);
                     if (bMetric)
                         unitBottom.setText(getString(map[5]));
                     else
                         unitBottom.setText(getString(map[4]));
                 }
-            } else {
-                unitLayout.setVisibility(GONE);
             }
         }
     }
@@ -265,7 +273,7 @@ public class Fragment_DataFields extends Fragment {
             String sTitle = (tvTitle!=null?tvTitle.getText().toString():"");
             if (bHrZoneColors && (sTitle.equals("Heart Rate") || sTitle.equals("HR"))) {
                 int iHrZone = -1;
-                if (val.matches("[0-9]+")) {
+                if (COMPILE.matcher(val).matches()) {
                     int iHr = Integer.parseInt(val);
                     for (int[] zone : DataFields.HR_ZONE) {
                         if (zone[0] * iAthleteHrMax < iHr * 100)
@@ -278,7 +286,7 @@ public class Fragment_DataFields extends Fragment {
             }
             if (bPowerZoneColors && sTitle.startsWith("Power")) {
                 int iZone = -1;
-                if (val.matches("[0-9]+")) {
+                if (COMPILE.matcher(val).matches()) {
                     int iVal = Integer.parseInt(val);
                     for (int[] zone : DataFields.POWER_ZONE) {
                         if (zone[0] * iAthleteFtp < iVal * 100)
@@ -310,9 +318,9 @@ public class Fragment_DataFields extends Fragment {
         if (activityDataFields[pos] != DataFields.NONE) {
             ImageView iv = cellList[pos].findViewById(R.id.corner_icon);
             if (value == BatteryStatus.LOW.getIntValue())
-                iv.setVisibility(View.VISIBLE);
+                iv.setVisibility(VISIBLE);
             else if (value == BatteryStatus.CRITICAL.getIntValue()) {
-                iv.setVisibility((iv.getVisibility()==View.VISIBLE?View.GONE:View.VISIBLE));
+                iv.setVisibility((iv.getVisibility()==VISIBLE ? GONE : VISIBLE));
             }
         }
     }
