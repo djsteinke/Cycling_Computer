@@ -24,6 +24,7 @@ public enum DataFieldName {
     GEAR_RATIO(0,DataFields.GEAR_RATIO),
     GPS_ACCURACY(0,DataFields.GPS_ACCURACY),
     GRADE(0,DataFields.GRADE),
+    ANGLE(0,DataFields.ANGLE),
     TEMPERATURE(0,DataFields.TEMPERATURE),
     TIME_OF_DAY(0,DataFields.TIME_OF_DAY),
     WIND(0,DataFields.WIND),

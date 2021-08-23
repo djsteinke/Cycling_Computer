@@ -36,6 +36,7 @@ public class Preferences {
     private boolean bUseSensorDistance;
     private int iWheelCircumfrence = 2095;
     private int[] bikeDataFields = new int[39];
+    private double dGradeOffset;
 
     public Preferences() {
         Arrays.fill(bikeDataFields, 2000);

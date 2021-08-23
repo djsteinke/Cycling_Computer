@@ -5,12 +5,14 @@ import android.location.Location;
 import lombok.Getter;
 import lombok.Setter;
 
+import static rnfive.djs.cyclingcomputer.define.StaticVariables.dGradeOffset;
 import static rnfive.djs.cyclingcomputer.define.StaticVariables.speedMin;
 
 @Getter
 @Setter
 public class Data {
 
+    private static final String TAG = Data.class.getSimpleName();
     // Location
     private Altitude altitude = new Altitude();
     private double latitude;
@@ -24,6 +26,8 @@ public class Data {
     private double distanceTot;
     private double distanceLap;
     private double distancePrev;
+    private double angle;
+    private Double[] angleArray = {0.0d,0.0d,0.0d};
 
     private float grade;
     private Float[][] gradeArray = new Float[2][20];
@@ -81,7 +85,7 @@ public class Data {
     private Integer[] powerAvgArray = {0,0,0};
     private int powerAvgLap;
     private int powerNZLap;
-    private Integer[] powerAvgLapArray = {0,0};
+    private Integer[] powerAvgLapArray = {0,0,0};
     private int smoothL;
     private int smoothR;
     private int torqueL;
@@ -102,6 +106,12 @@ public class Data {
     private int iGear;
 
     public Data() {}
+
+    void updateAngle(double in) {
+        in -= dGradeOffset;
+        Arrays.updateArray(angleArray, in);
+        angle = Arrays.getAvg(angleArray);
+    }
 
     public void setAltitudeValue(double altitude) {
         this.altitude.setAltitude(altitude);
@@ -198,8 +208,7 @@ public class Data {
         }
 
         float speedTmp = (antSpeedUsed ? speedSen : speedGps);
-        if (speedTmp >= speedMin)
-            speed = speedTmp;
+        speed = (speedTmp >= speedMin ? speedTmp : 0.0f);
 
         if (msTotM > 0)
             speedAvg = (float) distanceTot/(msTotM/1000.0f);

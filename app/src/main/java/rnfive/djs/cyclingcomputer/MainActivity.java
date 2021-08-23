@@ -51,6 +51,8 @@ import rnfive.djs.cyclingcomputer.define.Dialogs;
 import rnfive.djs.cyclingcomputer.define.EquipmentSensor;
 import rnfive.djs.cyclingcomputer.define.FieldDef;
 import rnfive.djs.cyclingcomputer.define.Files;
+import rnfive.djs.cyclingcomputer.define.FitException;
+import rnfive.djs.cyclingcomputer.define.FitFile;
 import rnfive.djs.cyclingcomputer.define.Gears;
 import rnfive.djs.cyclingcomputer.define.Permissions;
 import rnfive.djs.cyclingcomputer.define.Preferences;
@@ -200,6 +202,7 @@ public class MainActivity extends AppCompatActivity
     private static boolean bFragmentReady;
     private Fragment_DataFields fragmentDataFields;
     public static FragmentManager fm;
+    protected App app;
 
     public static int[] activityDataFields = new int[fieldDef.getSize()];
 
@@ -214,6 +217,9 @@ public class MainActivity extends AppCompatActivity
         createDir();
 
         Files.logMesg("D","onCreate", null);
+
+        app = (App) getApplication();
+        app.setContext(this);
 
         activity = this;
         tvDebug = findViewById(R.id.main_debug);
@@ -268,7 +274,7 @@ public class MainActivity extends AppCompatActivity
                 ibStart.setActivated(false);
                 setButtonVisibility(2);
                 setOnClick(true);
-            } catch (FitFileException e) {
+            } catch (FitException | FitFileException e) {
                 setFitFileName(null);
                 toastListener.onToast(e.getMessage());
             }
@@ -515,7 +521,9 @@ public class MainActivity extends AppCompatActivity
                         break;
                     case DataFields.GRADE:
                         isSS = true;
-                        ssValue = getSSValue(Strings.getFloatString(data.getGrade(),1),2,0.7f);
+                        double rad = data.getAngle() * Math.PI / 180.0d;
+                        double grade = Math.round(StrictMath.tan(rad) * 200.0d)/2.0d;
+                        ssValue = getSSValue(Strings.getNumericString(grade,1),2,0.7f);
                         break;
                     case DataFields.TEMPERATURE:
                         if (bWeatherExists)
@@ -559,6 +567,10 @@ public class MainActivity extends AppCompatActivity
                             isSS = true;
                             ssValue = getSSValue(Gears.sRatios[data.getIGear()],0,0.9f);
                         }
+                        break;
+                    case DataFields.ANGLE:
+                        isSS = false;
+                        sValue = Strings.getNumericString(data.getAngle(), 1);
                         break;
                     case DataFields.TEST:
                     case DataFields.NONE:
@@ -630,6 +642,7 @@ public class MainActivity extends AppCompatActivity
         bAntDistance = preferences.isBUseSensorDistance();
         iWheelSize = preferences.getIHrMax();
         activityDataFields = preferences.getBikeDataFields();
+        dGradeOffset = preferences.getDGradeOffset();
 
         SharedPreferences mainPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         iAntHRId = mainPrefs.getInt("ANT_PLUS_ID_HR",0);
@@ -710,7 +723,7 @@ public class MainActivity extends AppCompatActivity
         setKeepAwake();
     }
 
-    private void sendToService(String action) {
+    public void sendToService(String action) {
         Intent serviceIntent = new Intent(this, Service_Recording.class);
         serviceIntent.setAction(action);
         ContextCompat.startForegroundService(this, serviceIntent);

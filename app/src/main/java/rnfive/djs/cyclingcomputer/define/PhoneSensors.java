@@ -26,12 +26,13 @@ public class PhoneSensors implements SensorEventListener {
     private Sensor sensorMagneticField;
     private Sensor sensorStepDetector;
     private boolean running;
-    private double pressure = 0f;
-    private double pressurePrev = 0f;
-    private double pressureCurr = 0f;
+    private double pressure;
+    private double pressurePrev;
+    private double pressureCurr;
 
     private List<Float> pressureList = new ArrayList<>();
     private static final int pressureListSize = 15;
+    private static final int READING_RATE_1000 = 1000000;
 
     public static double absPressure;
 
@@ -53,8 +54,8 @@ public class PhoneSensors implements SensorEventListener {
                 if (sensorPressure != null)
                     sensorManager.registerListener(this, sensorPressure, SensorManager.SENSOR_DELAY_NORMAL);
                 if (sensorAccelerometer != null && sensorMagneticField != null) {
-                    sensorManager.registerListener(this, sensorAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-                    sensorManager.registerListener(this, sensorMagneticField, SensorManager.SENSOR_DELAY_NORMAL);
+                    sensorManager.registerListener(this, sensorAccelerometer, READING_RATE_1000);
+                    sensorManager.registerListener(this, sensorMagneticField, READING_RATE_1000);
                 }
                 if (sensorStepDetector != null) {
                     sensorManager.registerListener(this, sensorStepDetector, SensorManager.SENSOR_DELAY_NORMAL);
@@ -131,6 +132,7 @@ public class PhoneSensors implements SensorEventListener {
                         // get bearing to target
                         float[] orientation = new float[3];
                         SensorManager.getOrientation(R, orientation);
+                        data.updateAngle(-Math.toDegrees(orientation[1]));
                         // east degrees of true North
                         data.setBearing(Bearing.determineDirection(Math.toDegrees(orientation[0]), StaticVariables.geomagneticField));
                     }

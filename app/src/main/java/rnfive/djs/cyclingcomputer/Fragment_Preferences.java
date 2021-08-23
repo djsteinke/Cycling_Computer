@@ -100,6 +100,10 @@ public class Fragment_Preferences extends PreferenceFragmentCompat implements Sh
                 case "KEY_FTP":
                     iAthleteFtp = Integer.parseInt(etp.getText());
                     break;
+                case "KEY_GRADE_OFFSET":
+                    dGradeOffset = Double.parseDouble(etp.getText());
+                    preferences.setDGradeOffset(dGradeOffset);
+                    break;
             }
         }
         if (pref instanceof CheckBoxPreference) {
@@ -227,6 +231,7 @@ public class Fragment_Preferences extends PreferenceFragmentCompat implements Sh
                     break;
                 case "KEY_WHEEL":
                 case "KEY_FTP":
+                case "KEY_GRADE_OFFSET":
                 case "KEY_HR_MAX":
                     EditTextPreference etp = (EditTextPreference) summaryPref;
                     summaryPref.setSummary(etp.getText());
@@ -244,6 +249,7 @@ public class Fragment_Preferences extends PreferenceFragmentCompat implements Sh
         setSummary("KEY_WHEEL");
         setSummary("KEY_HR_MAX");
         setSummary("KEY_FTP");
+        setSummary("KEY_GRADE_OFFSET");
     }
 
     @Override

@@ -44,6 +44,9 @@
             <item
                 android:id="@+id/hrv"
                 android:title="HRV"/>
+            <item
+                android:id="@+id/crash"
+                android:title="CRASH"/>
         </menu>
     </item>
 </menu>

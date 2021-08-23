@@ -51,7 +51,6 @@ public class Runnable_UpdateValues implements Runnable{
                 absPressure = ((darkSkyResponse != null ? darkSkyResponse.getPressure() : pressureZero));
             }
             data.updateAltitude();
-            Log.d(TAG, "Altitude[" + data.getAltitudeValue() + "]");
         }
     }
 }

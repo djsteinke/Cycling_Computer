@@ -17,6 +17,7 @@ public final class MenuUtil {
     private static final int bluetooth_item = R.id.bluetooth_item;
     private static final int bluetooth_search = R.id.bluetooth_search;
     private static final int hrv = R.id.hrv;
+    private static final int crash = R.id.crash;
 
     private MenuUtil() {
     }
@@ -35,6 +36,10 @@ public final class MenuUtil {
             case log_item:
                 context.startActivity(new Intent(context, LogReader.class));
                 b_finish = true;
+                break;
+            case crash:
+                int[] iA = {0,0};
+                int b = iA[2];
                 break;
                 /*
             case bluetooth_item:

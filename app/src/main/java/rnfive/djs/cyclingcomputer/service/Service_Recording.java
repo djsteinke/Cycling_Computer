@@ -26,7 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import lombok.Getter;
-import rnfive.djs.cyclingcomputer.FitFile;
+import rnfive.djs.cyclingcomputer.define.FitFile;
 import rnfive.djs.cyclingcomputer.R;
 import rnfive.djs.cyclingcomputer.antplus.AntPlus_BC;
 import rnfive.djs.cyclingcomputer.antplus.AntPlus_BP;
@@ -51,11 +51,12 @@ public class Service_Recording extends Service implements LocationListener, IDev
 
     public static final String TAG = Service_Recording.class.getSimpleName();
 
-    public static final String START_SERVICE = "rn5.djs.cyclingcomputer.RecordingService.START_SERVICE";
-    public static final String STOP_SERVICE = "rn5.djs.cyclingcomputer.RecordingService.STOP_SERVICE";
-    public static final String START_RECORDING = "rn5.djs.cyclingcomputer.RecordingService.START_RECORDING";
-    public static final String STOP_RECORDING = "rn5.djs.cyclingcomputer.RecordingService.STOP_RECORDING";
-    public static final String ZERO_POWER = "rn5.djs.cyclingcomputer.RecordingService.ZERO_POWER";
+    public static final String START_SERVICE = "rnfive.djs.cyclingcomputer.RecordingService.START_SERVICE";
+    public static final String STOP_SERVICE = "rnfive.djs.cyclingcomputer.RecordingService.STOP_SERVICE";
+    public static final String START_RECORDING = "rnfive.djs.cyclingcomputer.RecordingService.START_RECORDING";
+    public static final String STOP_RECORDING = "rnfive.djs.cyclingcomputer.RecordingService.STOP_RECORDING";
+    public static final String ZERO_POWER = "rnfive.djs.cyclingcomputer.RecordingService.ZERO_POWER";
+    public static final String CRASH = "rnfive.djs.cyclingcomputer.RecordingService.CRASH";
 
     public static final String CHANNEL_ID = "RECORDING_SERVICE_CHANNEL";
     public static Data data;
@@ -155,23 +156,19 @@ public class Service_Recording extends Service implements LocationListener, IDev
                 bRecording = true;
                 break;
             case STOP_RECORDING:
-                bRecording = false;
                 stopRecording();
-                notificationMsg = null;
                 break;
             case ZERO_POWER:
                 if (bpAnt != null)
                     bpAnt.zero();
                 break;
             case STOP_SERVICE:
-                stopUpdateValues();
-                stopAntPlus();
-                stopGps();
-                stopRecording();
-                stopNotification();
-                bServiceStarted = false;
-                serviceRunning = false;
-                stopSelf();
+                stopService();
+                break;
+            case CRASH:
+                if (fitFile != null && fitFile.isOpen())
+                    fitFile.closeTmp();
+                stopService();
                 break;
             default:
                 break;
@@ -180,14 +177,28 @@ public class Service_Recording extends Service implements LocationListener, IDev
         return START_STICKY;
     }
 
+    private void stopService() {
+        stopUpdateValues();
+        stopAntPlus();
+        stopGps();
+        stopRecording();
+        stopNotification();
+        bServiceStarted = false;
+        serviceRunning = false;
+        stopSelf();
+    }
+
     void setNotificationMessage() {
         Intent notificationIntent = new Intent(this, Service_Recording.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        float d = (data != null ? (float) data.getDescentTot() : 0);
-        String unit = (StaticVariables.bMetric?" km":" mi");
-        String text = (bRecording ? Strings.getDistanceString(d) + unit : null);
+        float d = (data != null ? (float) data.getDistanceTot() : 0);
+        String text = null;
+        if (bRecording) {
+            text = Strings.getDistanceString(d) + (StaticVariables.bMetric?" km":" mi");
+            text += "\n" + Strings.getSpeedString(data.getSpeedAvg()) + (StaticVariables.bMetric?" kph":" mph");
+        }
 
         NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
         bigText.bigText(text); //detail mode is the "expanded" notification
@@ -363,8 +374,10 @@ public class Service_Recording extends Service implements LocationListener, IDev
     }
 
     private void stopRecording() {
+        bRecording = false;
         recordHandler.removeCallbacks(recordRunnable);
         bRecording = false;
+        notificationMsg = null;
         Log.d(TAG, "startRecording()");
     }
 
@@ -432,9 +445,7 @@ public class Service_Recording extends Service implements LocationListener, IDev
     
     @Override
     public void onLocationChanged(Location location) {
-
         if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
-            this.location = location;
             //b_gps_has_accuracy = false;
             StaticVariables.geomagneticField = new GeomagneticField(
                     (float) location.getLatitude(),
@@ -447,22 +458,6 @@ public class Service_Recording extends Service implements LocationListener, IDev
                 // TODO b_gps_has_accuracy = location.getAccuracy() <= f_gps_accuracy_min;
             }
 
-            data.setLatitude(location.getLatitude());
-            data.setLongitude(location.getLongitude());
-            if (phoneSensors.getSensorPressure() == null) {
-                data.setAltitudeValue(location.getAltitude());
-                // TODO - add gps altitude delta
-            }
-
-            // TODO updateWeather();
-            // TODO strava description();
-
-            double distanceP2P = 0;
-            if (data.getLocationPrev() != null)
-                distanceP2P = location.distanceTo(data.getLocationPrev());
-            data.setLocationPrev(location);
-            data.updateGPSDistance(distanceP2P);
-
             float speed = 0.0f;
             if (location.hasSpeed()) {
                 speed = location.getSpeed();
@@ -472,6 +467,26 @@ public class Service_Recording extends Service implements LocationListener, IDev
             float gpsSpeed = (speed + data.getSpeedGpsPrev())/2.0f;
             data.setSpeedGps(gpsSpeed);
             data.setSpeedGpsPrev(speed);
+
+            if (phoneSensors.getSensorPressure() == null) {
+                data.setAltitudeValue(location.getAltitude());
+                // TODO - add gps altitude delta
+            }
+
+            // TODO updateWeather();
+            // TODO strava description();
+
+            if (gpsSpeed > 0) {
+                Service_Recording.location = location;
+                data.setLatitude(location.getLatitude());
+                data.setLongitude(location.getLongitude());
+                double distanceP2P = 0;
+                if (data.getLocationPrev() != null)
+                    distanceP2P = location.distanceTo(data.getLocationPrev());
+                data.setLocationPrev(location);
+                data.updateGPSDistance(distanceP2P);
+            }
+
         }
     }
 

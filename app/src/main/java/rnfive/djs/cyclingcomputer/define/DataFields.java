@@ -52,8 +52,9 @@ public class DataFields {
     public static final int TEST = 2037;
     public static final int TIME_OF_DAY = 2038;
     public static final int GEAR_RATIO = 2039;
+    public static final int ANGLE = 2040;
 
-    public static final int[][] HR_ZONE = new int[][] {
+    public static final int[][] HR_ZONE = {
             {0,R.color.black,R.color.white},
             {65,R.color.hr_blue,R.color.hr_blue_i},
             {75,R.color.hr_green,R.color.hr_green_i},
@@ -61,7 +62,7 @@ public class DataFields {
             {89,R.color.hr_orange,R.color.hr_orange_i},
             {94,R.color.hr_red,R.color.hr_red_i}};
 
-    public static final int[][] POWER_ZONE = new int[][] {
+    public static final int[][] POWER_ZONE = {
             {0,R.color.black,R.color.white},
             {56,R.color.hr_blue,R.color.hr_blue_i},
             {76,R.color.hr_green,R.color.hr_green_i},
@@ -69,7 +70,7 @@ public class DataFields {
             {106,R.color.hr_orange,R.color.hr_orange_i},
             {121,R.color.hr_red,R.color.hr_red_i}};
 
-    public static final Integer[] dataFieldMapDefault = new Integer[] {-1,-1,-1,-1,-1,-1,-1};
+    public static final Integer[] dataFieldMapDefault = {-1,-1,-1,-1,-1,-1,-1};
     public static final SparseArray<Integer[]> dataFieldMap = new SparseArray<>();
     // Integer[] Title, Short Title, Unit Top Imperial, Unit Top Metric, Unit Bot Imp, Unit Bot Metric, Device Icon
     static {
@@ -113,5 +114,6 @@ public class DataFields {
         dataFieldMap.put(TEST,new Integer[] {R.string.test,R.string.test,R.string.m,R.string.k,R.string.h,R.string.h,-1});
         dataFieldMap.put(TIME_OF_DAY,new Integer[] {R.string.time_of_day,R.string.time_of_day,-1,-1,-1});
         dataFieldMap.put(GEAR_RATIO,new Integer[] {R.string.gear_ratio,R.string.gear_ratio,-1,-1,-1});
+        dataFieldMap.put(ANGLE,new Integer[] {R.string.angle,R.string.angle,-1,-1,-1});
     }
 }

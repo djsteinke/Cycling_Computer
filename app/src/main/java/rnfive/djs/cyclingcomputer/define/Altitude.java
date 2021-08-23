@@ -1,6 +1,7 @@
 package rnfive.djs.cyclingcomputer.define;
 
 import android.location.Location;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,11 +9,12 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
+import static rnfive.djs.cyclingcomputer.define.Filters.doubleLPFilter;
 import static rnfive.djs.cyclingcomputer.define.Lists.addValue;
 import static rnfive.djs.cyclingcomputer.define.Lists.getAvg;
 import static rnfive.djs.cyclingcomputer.define.StaticVariables.bMoving;
 import static rnfive.djs.cyclingcomputer.define.StaticVariables.bStarted;
-import static rnfive.djs.cyclingcomputer.service.Service_Recording.data;
+import static rnfive.djs.cyclingcomputer.define.StaticVariables.roundDouble;
 import static rnfive.djs.cyclingcomputer.service.Service_Recording.location;
 
 @Getter
@@ -20,11 +22,11 @@ import static rnfive.djs.cyclingcomputer.service.Service_Recording.location;
 class Altitude {
 
     private static final String TAG = Altitude.class.getSimpleName();
-    private static final double altitudeCutoff = 0.5d;
-    private static final double sensorCutoff = 75.0d;
-    private static final int listSize = 5;
-    private static final int minDistGrade = 10;
-    private static final int minDistAscent = 25;
+    private static final double altitudeCutoff = 0.35d;
+    private static final double sensorCutoff = 100.0d;
+    private static final int pressureListSize = 10;
+    private static final int minDistAscent = 40;
+    private static final int minTimeAscent = 10;
 
     private double altitude;
     private double ascent;
@@ -33,65 +35,55 @@ class Altitude {
     private double descentLap;
     private double grade;
 
-    private double ascentLastAlt;
-    private Location ascentLastLoc;
-    private Location gradeLastLoc;
-    private List<Point> gradePoints = new ArrayList<>();
+    private double lastAltAscent;
+    private double p2pAscent;
+    private Location lastLocation;
+    private int cntAscent;
+
     private double absolutePressure = 1013.25;
     private double pressure;
-    private double sensorPressure;
-    private double pressureTotal;
+    private double lastPressure;
+
+    private double lpPressure;
 
     private final List<Double> sensorPressureList = new ArrayList<>();
 
     Altitude() {}
 
     void updatePressure(double inPressure) {
-        if (sensorPressure == 0.0d)
-            sensorPressure = inPressure;
-        if (Math.abs(inPressure-sensorPressure) < sensorCutoff) {
-            addValue(sensorPressureList, inPressure, listSize);
-            if (sensorPressureList.size() >= listSize) {
-                if (pressure == 0) {
-                    pressure = getAvg(sensorPressureList);
-                    pressureTotal = total();
-                }
-                double tot = total();
-                pressure += (tot - pressureTotal)/listSize;
-                pressureTotal = tot;
-            }
+        inPressure = roundDouble(inPressure, 2);
+        /*
+        if (lastPressure == 0.0d)
+            lastPressure = inPressure;
+        if (Math.abs(inPressure-lastPressure) < sensorCutoff) {
+            addValue(sensorPressureList, inPressure, pressureListSize);
         }
-        sensorPressure = inPressure;
+        pressure = roundDouble(getAvg(sensorPressureList), 2);
+        lastPressure = inPressure;
+        */
+        if (lpPressure == 0)
+            lpPressure = inPressure;
+        lpPressure = roundDouble(doubleLPFilter(lpPressure, inPressure),2);
     }
 
     void updateAltitude() {
-        double alt = calculateAltitude(pressure);
-        if (altitude == 0 || Math.abs(alt - altitude) > altitudeCutoff)
+        //Log.d(TAG, "Pressure[" + pressure + "] LP[" + lpPressure + "]");
+
+        double alt = roundDouble(calculateAltitude(lpPressure), 1);
+        if (Math.abs(alt - altitude) >= altitudeCutoff)
             altitude = alt;
 
-        if (bMoving) {
-            updateGradePoints();
-            if (ascentLastAlt == 0)
-                ascentLastAlt = alt;
-            if (ascentLastLoc == null)
-                ascentLastLoc = location;
-            double p2p = location.distanceTo(ascentLastLoc);
-            if (p2p >= minDistAscent) {
-                updateAscent(altitude, ascentLastAlt);
-                ascentLastLoc = location;
-                ascentLastAlt = altitude;
-            }
-        }
-    }
-
-    private void updateGradePoints() {
-        double p2p = location.distanceTo(gradeLastLoc);
-        if (p2p >= minDistGrade) {
-            Point p = new Point(altitude, p2p);
-            addValue(gradePoints, p, 3);
-            if (gradePoints.size() > 2)
-                updateGrade();
-            gradeLastLoc = location;
+        if (bMoving && bStarted) {
+            if (lastAltAscent == 0)
+                lastAltAscent = altitude;
+            if (lastLocation == null)
+                lastLocation = location;
+            double p2p = location.distanceTo(lastLocation);
+            p2pAscent += p2p;
+            cntAscent ++;
+            if (p2pAscent >= minDistAscent && cntAscent >= minTimeAscent)
+                updateAscent();
+            lastLocation = location;
         }
     }
 
@@ -103,41 +95,18 @@ class Altitude {
         return (1 - StrictMath.pow(pressure / absolutePressure, 1 / 5.25588)) / 0.0000225577;
     }
 
-    private void updateGrade() {
-        Point p1 = gradePoints.get(0);
-        Point p2 = gradePoints.get(1);
-        Point p3 = gradePoints.get(2);
-        double alt = p1.getAltitude() - p3.getAltitude();
-        double dist = p1.getDistance() + p2.getDistance() + p3.getDistance();
-        double g = alt/dist*100.0f;
-        if (g < 50)
-            data.setGrade((float) g);
-    }
-
-    private void updateAscent(double newVal, double oldVal) {
-        double diff = newVal - oldVal;
-        if (bStarted && bMoving) {
-            if (diff > 0) {
-                ascent += diff;
-                ascentLap += diff;
-            } else {
-                descent += diff;
-                descentLap += diff;
-            }
+    private void updateAscent() {
+        double diff = altitude - lastAltAscent;
+        if (diff > 0) {
+            ascent += diff;
+            ascentLap += diff;
+        } else {
+            descent += diff;
+            descentLap += diff;
         }
-    }
-
-    @Getter
-    @Setter
-    private static class Point {
-        private double altitude;
-        private double distance;
-
-        Point() {}
-        Point(double altitude, double distance) {
-            this.altitude = altitude;
-            this.distance = distance;
-        }
+        lastAltAscent = altitude;
+        p2pAscent = 0.0d;
+        cntAscent = 0;
     }
 
 }

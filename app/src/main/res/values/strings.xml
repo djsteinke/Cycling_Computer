@@ -24,6 +24,7 @@
     <string name="invert_colors">Invert Colors</string>
     <string name="invert_colors_desc">Black text on white background.</string>
     <string name="wheel">Wheel Circumfrence(mm)</string>
+    <string name="grade_offset">Grade Offset(deg)</string>
     <string name="keep_awake">Keep Screen On</string>
     <string name="keep_awake_desc">Keep screen on during activity.</string>
     <string name="hr_max">HR Max(bpm)</string>
@@ -153,6 +154,7 @@
     <string name="gps_accuracy">GPS Accuracy</string>
     <string name="time_of_day">Time of Day</string>
     <string name="gear_ratio">Gear Ratio</string>
+    <string name="angle">Angle</string>
 
     <string name="trainer">Trainer</string>
     <string name="commute">Commute</string>

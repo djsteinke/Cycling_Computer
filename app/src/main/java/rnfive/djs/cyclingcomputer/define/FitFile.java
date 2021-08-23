@@ -1,5 +1,6 @@
-package rnfive.djs.cyclingcomputer;
+package rnfive.djs.cyclingcomputer.define;
 
+import android.icu.util.Calendar;
 import android.util.Log;
 
 import com.garmin.fit.Activity;
@@ -37,12 +38,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Locale;
+import java.util.Objects;
 
 import androidx.annotation.Nullable;
 import rnfive.djs.cyclingcomputer.BuildConfig;
-import rnfive.djs.cyclingcomputer.define.Bearing;
 import rnfive.djs.cyclingcomputer.exception.FitFileException;
 
 
@@ -54,7 +54,10 @@ import static rnfive.djs.cyclingcomputer.MainActivity.sport;
 import static rnfive.djs.cyclingcomputer.MainActivity.toastListener;
 import static rnfive.djs.cyclingcomputer.define.StaticVariables.bBCExists;
 import static rnfive.djs.cyclingcomputer.define.StaticVariables.bBPCadExists;
+import static rnfive.djs.cyclingcomputer.define.StaticVariables.bMoving;
+import static rnfive.djs.cyclingcomputer.define.StaticVariables.bPaused;
 import static rnfive.djs.cyclingcomputer.service.Service_Recording.data;
+import static rnfive.djs.cyclingcomputer.service.Service_Recording.fitFile;
 
 public class FitFile {
     private static final String TAG = "FitFile";
@@ -63,30 +66,30 @@ public class FitFile {
     private String fitFileName;
     private File fitFileDir;
     private boolean bActivity;
-    private static final SimpleDateFormat fitSdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss",Locale.US);
-    private boolean bOpen = false;
+    private static final ThreadLocal<SimpleDateFormat> fitSdf = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss",Locale.US));
+    private boolean bOpen;
 
     public FitFile() {}
 
     public void create(@Nullable String name) {
-        this.startDate = Calendar.getInstance();
+        startDate = Calendar.getInstance();
 
         if (name == null) {
-            this.fitFileName = fitSdf.format(startDate.getTime()) + ".fit";
-            this.fitFileDir = filePathApp;
-            this.bActivity = true;
+            fitFileName = Objects.requireNonNull(fitSdf.get()).format(startDate.getTime()) + ".fit";
+            fitFileDir = filePathApp;
+            bActivity = true;
         } else {
-            this.fitFileName = name + ".summary";
-            this.fitFileDir = filePathSummary;
+            fitFileName = name + ".summary";
+            fitFileDir = filePathSummary;
         }
 
         try {
-            this.var0 = new FileEncoder(new File(this.fitFileDir,this.fitFileName), Fit.ProtocolVersion.V2_0);
+            var0 = new FileEncoder(new File(fitFileDir, fitFileName), Fit.ProtocolVersion.V2_0);
             bOpen = true;
         } catch (FitRuntimeException var11) {
-            Log.e(TAG,"Error opening file " + this.fitFileName);
+            Log.e(TAG,"Error opening file " + fitFileName);
         }
-        if (this.bActivity) {
+        if (bActivity) {
             fileIdMesg();
             fileCreatorMesg();
             eventMesg(EventType.START, false);
@@ -97,33 +100,30 @@ public class FitFile {
         return bOpen;
     }
 
-    public void openTmp(String name) throws FitFileException {
+    public void openTmp(String name) throws FitException {
         toastListener.onToast("Loading saved activity.");
-        this.startDate = Calendar.getInstance();
-        this.fitFileName = fitSdf.format(startDate.getTime()) + ".fit";
-        this.fitFileDir = filePathApp;
+        startDate = Calendar.getInstance();
+        fitFileName = Objects.requireNonNull(fitSdf.get()).format(startDate.getTime()) + ".fit";
+        fitFileDir = filePathApp;
         try {
-            this.var0 = new FileEncoder(new File(this.fitFileDir,this.fitFileName), Fit.ProtocolVersion.V2_0);
+            var0 = new FileEncoder(new File(fitFileDir,fitFileName), Fit.ProtocolVersion.V2_0);
             bOpen = true;
         } catch (FitRuntimeException var11) {
-            Log.e(TAG, "Error opening file " + this.fitFileName);
+            Log.e(TAG, "Error opening file " + fitFileName);
+            throw new FitException("FitRuntimeException - Error opening file " + fitFileName);
         }
         boolean loaded;
         String msg = "";
         try {
-            decode(name);
-            loaded = true;
-        } catch (FitFileException e) {
-            loaded = false;
-            msg = e.getMessage();
+            decode(name, var0);
+        } catch (FileNotFoundException e) {
+            throw new FitException("Decode failed.  File not found " + name);
+        } catch (IOException e) {
+            throw new FitException("IOException: " + e.getMessage());
         }
         File origFile = new File(filePathApp,name);
-        if (origFile.exists())
-            //noinspection ResultOfMethodCallIgnored
-            origFile.delete();
-        if (!loaded)
-            throw new FitFileException(msg);
-        toastListener.onToast("Saved activity loaded.");
+        if (origFile.exists() && origFile.delete())
+            toastListener.onToast("Saved activity loaded.");
     }
 
     private void fileIdMesg() {
@@ -149,21 +149,21 @@ public class FitFile {
         if (bBCExists || bBPCadExists)
             var6.setCadence((short) data.getCadence());
         if (data.getSmoothL() > 0 || data.getSmoothR() > 0)
-            var6.setCombinedPedalSmoothness((float)(data.getSmoothL()+data.getSmoothR())/((data.getSmoothL()>0?1:0)+(data.getSmoothR()>0?1:0)));
+            var6.setCombinedPedalSmoothness((float) (data.getSmoothL() + data.getSmoothR()) / ((data.getSmoothL() > 0 ? 1 : 0) + (data.getSmoothR() > 0 ? 1 : 0)));
         //var6.setDeviceIndex(??? Short);
         var6.setGpsAccuracy((short) data.getGpsAccuracy());
         var6.setGrade(data.getGrade());
         var6.setHeartRate((short) data.getHr());
         if (data.getSmoothL() != -1)
-            var6.setLeftPedalSmoothness((float)data.getSmoothL());
+            var6.setLeftPedalSmoothness((float) data.getSmoothL());
         if (data.getSmoothR() != -1)
-            var6.setRightPedalSmoothness((float)data.getSmoothR());
+            var6.setRightPedalSmoothness((float) data.getSmoothR());
         if (data.getBalanceR() != -1)
-            var6.setLeftRightBalance((short) (data.getBalanceR()+128));
+            var6.setLeftRightBalance((short) (data.getBalanceR() + 128));
         if (data.getTorqueL() != -1)
-            var6.setLeftTorqueEffectiveness((float)data.getTorqueL());
+            var6.setLeftTorqueEffectiveness((float) data.getTorqueL());
         if (data.getTorqueR() != -1)
-            var6.setRightTorqueEffectiveness((float)data.getTorqueR());
+            var6.setRightTorqueEffectiveness((float) data.getTorqueR());
         var6.setPositionLat(Bearing.semicircleFromDegrees(data.getLatitude()));
         var6.setPositionLong(Bearing.semicircleFromDegrees(data.getLongitude()));
         var6.setPower(data.getPower());
@@ -173,7 +173,7 @@ public class FitFile {
         try {
             var0.write(var6);
         } catch (FitRuntimeException e) {
-            Log.e(TAG,"FitRuntimeException" + e.getMessage());
+            Log.e(TAG, "FitRuntimeException" + e.getMessage());
         }
     }
 
@@ -191,9 +191,9 @@ public class FitFile {
         LapMesg newLap = new LapMesg();
         newLap.setTimestamp(new DateTime(Calendar.getInstance().getTime()));
         newLap.setStartTime(new DateTime(startDate.getTime()));
-        newLap.setTotalElapsedTime((float)data.getMsElapsedLap()/1000f);
-        newLap.setTotalMovingTime((float)data.getMsLapM()/1000f);
-        newLap.setTotalTimerTime((float)data.getMsTotM()/1000f);
+        newLap.setTotalElapsedTime(data.getMsElapsedLap()/1000.0f);
+        newLap.setTotalMovingTime(data.getMsLapM()/1000.0f);
+        newLap.setTotalTimerTime(data.getMsTotM()/1000.0f);
         newLap.setTotalDistance((float) data.getDistanceLap());
         newLap.setEvent(Event.LAP);
         newLap.setEventType(EventType.STOP);
@@ -249,9 +249,9 @@ public class FitFile {
         SessionMesg var5 = new SessionMesg();
         var5.setTimestamp(new DateTime(Calendar.getInstance().getTime()));
         var5.setStartTime(new DateTime(startDate.getTime()));
-        var5.setTotalElapsedTime((float) data.getMsElapsed()/1000f);
-        var5.setTotalMovingTime((float) data.getMsTotM()/1000f);
-        var5.setTotalTimerTime((float) data.getMsTot()/1000f);
+        var5.setTotalElapsedTime(data.getMsElapsed()/1000.0f);
+        var5.setTotalMovingTime(data.getMsTotM()/1000.0f);
+        var5.setTotalTimerTime(data.getMsTot()/1000.0f);
         var5.setTotalDistance((float) data.getDistanceTot());
         var5.setEvent(Event.LAP);
         var5.setNumLaps(1);
@@ -273,10 +273,11 @@ public class FitFile {
         var5.setMaxCadence((short) data.getCadenceMax());
         var0.write(var5);
 
-        byte[] varNew = new byte[]{1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, -112, -23, 121, 98, -37};
+        byte[] varNew = {1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, -112, -23, 121, 98, -37};
         DeveloperDataIdMesg varDev = new DeveloperDataIdMesg();
 
-        for(int varTmp = 0; varTmp < varNew.length; ++varTmp) {
+        int l = varNew.length;
+        for(int varTmp = 0; varTmp < l; ++varTmp) {
             varDev.setApplicationId(varTmp, varNew[varTmp]);
         }
 
@@ -327,109 +328,75 @@ public class FitFile {
             Log.e(TAG,"Error closing encode " + fitFileName);
         }
 
-        File file = new File(this.fitFileDir,this.fitFileName);
-        if (file.exists())
-            file.delete();
+        File file = new File(fitFileDir,fitFileName);
+        if (file.exists() && file.delete())
+            Log.d(TAG,"File Deleted. " + fitFileName);
     }
 
     public String getFitFileName() {
         return fitFileName;
     }
 
-    private void decode(String var0) throws FitFileException {
-        Decode var1 = new Decode();
-        MesgBroadcaster var2 = new MesgBroadcaster(var1);
-        ActivityMesgL activityMesgListener  = new ActivityMesgL();
-        SessionMesgL sessionMesgListener = new SessionMesgL();
-        LapMesgL lapMesgListener = new LapMesgL();
-        RecordMesgL recordMesgListener = new RecordMesgL();
-
-        FileInputStream var4;
+    /**
+     * @param var0 - File name
+     * @param fileEncoder - FileEncoder
+     * @throws FitFileException -- Throws Fit FitFileException
+     */
+    private void decode(String var0, FileEncoder fileEncoder) throws FileNotFoundException, IOException, FitException {
+        Decode decode = new Decode();
+        //decode.skipHeader();        // Use on streams with no header and footer (stream contains FIT defn and data messages only)
+        //decode.incompleteStream();  // This suppresses exceptions with unexpected eof (also incorrect crc)
+        MesgBroadcaster mesgBroadcaster = new MesgBroadcaster(decode);
+        Listener listener = new Listener(fileEncoder);
         File newFile = new File(filePathApp, var0);
-        try {
-            var4 = new FileInputStream(newFile);
-        } catch (FileNotFoundException e) {
-            throw new FitFileException("Error opening file [" + newFile + "] [1]\n" + e.getMessage());
-        }
+        FileInputStream in;
 
-        if (!var1.checkFileIntegrity(var4)) {
-            Log.d("FitFile.decode","FIT file integrity failed.");
-            try {
-                var4.close();
-            } catch (IOException var18) {
-                throw new FitFileException("FIT file decode failed. File corrupted.\n" + var18.getMessage());
-            }
+        in = new FileInputStream(newFile);
+        if (!decode.checkFileIntegrity(in)) {
+            throw new FitException("FIT file integrity failed.");
         }
+        in.close();
 
-        newFile = new File(filePathApp, var0);
-        try {
-            var4 = new FileInputStream(newFile);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("Error opening file [" + newFile + "] [2]\n" + e.getMessage());
-        }
+        in = new FileInputStream(newFile);
 
-        if (!var1.checkFileIntegrity(var4)) {
-            Log.d("FitFile.decode","FIT file integrity failed.");
-            try {
-                var4.close();
-            } catch (IOException var18) {
-                throw new FitFileException("FIT file decode failed. File corrupted.\n" + var18.getMessage());
-            }
-        }
-
-        var2.addListener(activityMesgListener);
-        var2.addListener(sessionMesgListener);
-        var2.addListener(lapMesgListener);
-        var2.addListener(recordMesgListener);
+        mesgBroadcaster.addListener((SessionMesgListener)listener);
+        mesgBroadcaster.addListener((ActivityMesgListener)listener);
+        mesgBroadcaster.addListener((LapMesgListener)listener);
+        mesgBroadcaster.addListener((RecordMesgListener)listener);
 
         try {
-            var1.read(var4, var2, var2);
+            decode.read(in, mesgBroadcaster, mesgBroadcaster);
         } catch (FitRuntimeException e) {
-            if (!var1.getInvalidFileDataSize()) {
-                Log.e("FitFile.decode", "Exception decoding file.\n" + e.getMessage());
-                try {
-                    var4.close();
-                } catch (IOException e1) {
-                    throw new FitFileException("Exception decoding file[1].\n" + e1.getMessage());
-                }
+            // If a file with 0 data size in it's header  has been encountered,
+            // attempt to keep processing the file
+            if (decode.getInvalidFileDataSize()) {
+                decode.nextFile();
+                decode.read(in, mesgBroadcaster, mesgBroadcaster);
+            } else {
+                Log.e(TAG, "Exception decoding file: " + e.getMessage());
+                in.close();
+                return;
             }
-            try {
-                var1.nextFile();
-                var1.read(var4, var2, var2);
-            } catch (FitRuntimeException e2) {
-                throw new FitFileException("Exception decoding file[2].\n" + e2.getMessage());
-            }
+        }
+        in.close();
+    }
 
-            try {
-                var4.close();
-            } catch (IOException var20) {
-                throw new FitFileException("Exception decoding file[2].\n" + e.getMessage());
-            }
-            Log.d("FitFile.decode", "File[" + var0 + "] decoded.");
+    private static final class Listener implements SessionMesgListener, ActivityMesgListener, LapMesgListener, RecordMesgListener {
+        private final FileEncoder fileEncoder;
+        Listener(FileEncoder fileEncoder) {
+            this.fileEncoder = fileEncoder;
         }
-    }
-    private class SessionMesgL implements SessionMesgListener {
-        private SessionMesgL() {}
-        public void onMesg(SessionMesg var1) {
-            var0.write(var1);
+        public void onMesg(SessionMesg sessionMesg) {
+            fileEncoder.write(sessionMesg);
         }
-    }
-    private class ActivityMesgL implements ActivityMesgListener {
-        private ActivityMesgL() {}
-        public void onMesg(ActivityMesg var1) {
-            var0.write(var1);
+        public void onMesg(ActivityMesg activityMesg) {
+            fileEncoder.write(activityMesg);
         }
-    }
-    private class LapMesgL implements LapMesgListener {
-        private LapMesgL() {}
-        public void onMesg(LapMesg var1) {
-            var0.write(var1);
+        public void onMesg(LapMesg lapMesg) {
+            fileEncoder.write(lapMesg);
         }
-    }
-    private class RecordMesgL implements RecordMesgListener {
-        private RecordMesgL() {}
-        public void onMesg(RecordMesg var1) {
-            var0.write(var1);
+        public void onMesg(RecordMesg recordMesg) {
+            fileEncoder.write(recordMesg);
         }
     }
 

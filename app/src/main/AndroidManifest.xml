@@ -25,17 +25,19 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.CyclingComputer" >
+        android:theme="@style/Theme.CyclingComputer"
+        android:name=".App">
         <service android:name="rnfive.djs.cyclingcomputer.service.Service_Recording"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location">
             <intent-filter>
-                <action android:name="rn5.djs.gps_cycling_computer.RecordingService.START_RECORDING"/>
-                <action android:name="rn5.djs.gps_cycling_computer.RecordingService.STOP_RECORDING"/>
-                <action android:name="rn5.djs.gps_cycling_computer.RecordingService.STOP_SERVICE"/>
-                <action android:name="rn5.djs.gps_cycling_computer.RecordingService.START_SERVICE"/>
-                <action android:name="rn5.djs.gps_cycling_computer.RecordingService.ZERO_POWER"/>
+                <action android:name="rnfive.djs.gps_cycling_computer.RecordingService.START_RECORDING"/>
+                <action android:name="rnfive.djs.gps_cycling_computer.RecordingService.STOP_RECORDING"/>
+                <action android:name="rnfive.djs.gps_cycling_computer.RecordingService.STOP_SERVICE"/>
+                <action android:name="rnfive.djs.gps_cycling_computer.RecordingService.START_SERVICE"/>
+                <action android:name="rnfive.djs.gps_cycling_computer.RecordingService.ZERO_POWER"/>
+                <action android:name="rnfive.djs.gps_cycling_computer.RecordingService.CRASH"/>
             </intent-filter>
         </service>
         <activity

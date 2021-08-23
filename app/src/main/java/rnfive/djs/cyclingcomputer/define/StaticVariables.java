@@ -51,12 +51,13 @@ public final class StaticVariables {
     public static int iWheelSize;
     public static int iAthleteHrMax;
     public static int iAthleteFtp;
+    public static double dGradeOffset;
 
     public static DarkSkyResponse darkSkyResponse;
 
     public static GeomagneticField geomagneticField;
 
-    public static final float speedMin = 0.5f;
+    public static final float speedMin = 1.25f;
 
     public static long lastUpdateValuesMS;
 
@@ -65,6 +66,12 @@ public final class StaticVariables {
     public static <T> T getClassFromJson(String inJson, Class<T> t) {
         Gson gson = new GsonBuilder().create();
         return gson.fromJson(inJson, t);
+    }
+
+    public static double roundDouble(double in, int places) {
+        double precision = StrictMath.pow(10.0d, places);
+        double ret = Math.round(in*precision);
+        return ret/precision;
     }
 
     public static <T> double lowPassFilter(T t1, T t2) {
