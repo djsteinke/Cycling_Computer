@@ -5,6 +5,20 @@
       <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
     </configurations>
   </component>
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/MyData/Program Files/Android/AndroidStudioProjects/CyclingComputer/app/src/main/res/drawable/ic_bike_black_24dp.xml" value="0.253125" />
+        <entry key="..\:/MyData/Program Files/Android/AndroidStudioProjects/CyclingComputer/app/src/main/res/drawable/ic_launcher_background.xml" value="0.253125" />
+        <entry key="..\:/MyData/Program Files/Android/AndroidStudioProjects/CyclingComputer/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.253125" />
+        <entry key="..\:/MyData/Program Files/Android/AndroidStudioProjects/CyclingComputer/app/src/main/res/drawable/ic_launcher_foreground_old.xml" value="0.253125" />
+        <entry key="..\:/MyData/Program Files/Android/AndroidStudioProjects/CyclingComputer/app/src/main/res/drawable/icon_new.xml" value="0.22" />
+        <entry key="..\:/MyData/Program Files/Android/AndroidStudioProjects/CyclingComputer/app/src/main/res/drawable/icon_power.xml" value="0.253125" />
+        <entry key="..\:/MyData/Program Files/Android/AndroidStudioProjects/CyclingComputer/app/src/main/res/drawable/splash_screen.xml" value="0.253125" />
+        <entry key="..\:/MyData/Program Files/Android/AndroidStudioProjects/CyclingComputer/app/src/main/res/layout/popup_working.xml" value="0.25" />
+      </map>
+    </option>
+  </component>
   <component name="NullableNotNullManager">
     <option name="myDefaultNullable" value="org.jetbrains.annotations.Nullable" />
     <option name="myDefaultNotNull" value="androidx.annotation.RecentlyNonNull" />

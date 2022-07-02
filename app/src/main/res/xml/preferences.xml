@@ -50,10 +50,6 @@
             android:key="KEY_WHEEL"
             android:title="@string/wheel"
             android:inputType="number"/>
-        <EditTextPreference
-            android:key="KEY_GRADE_OFFSET"
-            android:title="@string/grade_offset"
-            android:inputType="numberDecimal"/>
         <CheckBoxPreference
             android:key="KEY_SPEED_DEFAULT"
             android:title="Use ANT+ Sensor for Speed"
@@ -65,6 +61,13 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/app_settings"
         android:key="appSettingsCategory">
+        <Preference
+            android:key="KEY_CALIBRATE_MOUNT"
+            android:title="@string/calibrate_mount"/>
+        <EditTextPreference
+            android:key="KEY_GRADE_OFFSET"
+            android:title="@string/grade_offset"
+            android:inputType="numberDecimal"/>
         <CheckBoxPreference
             android:key="KEY_METRIC"
             android:defaultValue="false"

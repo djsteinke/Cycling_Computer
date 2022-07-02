@@ -24,7 +24,9 @@
     <string name="invert_colors">Invert Colors</string>
     <string name="invert_colors_desc">Black text on white background.</string>
     <string name="wheel">Wheel Circumfrence(mm)</string>
-    <string name="grade_offset">Grade Offset(deg)</string>
+    <string name="grade_offset">Mount Angle Offset(deg)</string>
+    <string name="calibrate_mount">Calibrate Mount</string>
+    <string name="calibrate_mount_q">Calibrate mount?</string>
     <string name="keep_awake">Keep Screen On</string>
     <string name="keep_awake_desc">Keep screen on during activity.</string>
     <string name="hr_max">HR Max(bpm)</string>

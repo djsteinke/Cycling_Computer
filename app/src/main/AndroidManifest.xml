@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="rnfive.djs.cyclingcomputer">
+    package="rnfive.htfu.cyclingcomputer">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA" />
@@ -27,24 +27,31 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CyclingComputer"
         android:name=".App">
-        <service android:name="rnfive.djs.cyclingcomputer.service.Service_Recording"
+        <service android:name="rnfive.htfu.cyclingcomputer.service.Service_Recording"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location">
             <intent-filter>
-                <action android:name="rnfive.djs.gps_cycling_computer.RecordingService.START_RECORDING"/>
-                <action android:name="rnfive.djs.gps_cycling_computer.RecordingService.STOP_RECORDING"/>
-                <action android:name="rnfive.djs.gps_cycling_computer.RecordingService.STOP_SERVICE"/>
-                <action android:name="rnfive.djs.gps_cycling_computer.RecordingService.START_SERVICE"/>
-                <action android:name="rnfive.djs.gps_cycling_computer.RecordingService.ZERO_POWER"/>
-                <action android:name="rnfive.djs.gps_cycling_computer.RecordingService.CRASH"/>
+                <action android:name="rnfive.htfu.gps_cycling_computer.RecordingService.START_RECORDING"/>
+                <action android:name="rnfive.htfu.gps_cycling_computer.RecordingService.STOP_RECORDING"/>
+                <action android:name="rnfive.htfu.gps_cycling_computer.RecordingService.STOP_SERVICE"/>
+                <action android:name="rnfive.htfu.gps_cycling_computer.RecordingService.START_SERVICE"/>
+                <action android:name="rnfive.htfu.gps_cycling_computer.RecordingService.ZERO_POWER"/>
+                <action android:name="rnfive.htfu.gps_cycling_computer.RecordingService.CRASH"/>
+            </intent-filter>
+        </service>
+        <service android:name="rnfive.htfu.cyclingcomputer.service.Service_StravaUpload"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="rnfive.htfu.gps_cycling_computer.StravaUpload.START_UPLOAD"/>
             </intent-filter>
         </service>
         <activity
-            android:name="rnfive.djs.cyclingcomputer.MainActivity"
+            android:name="rnfive.htfu.cyclingcomputer.MainActivity"
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
+            android:exported="true"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -55,7 +62,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="rnfive.djs.cyclingcomputer.Settings"
+            android:name="rnfive.htfu.cyclingcomputer.Settings"
+            android:exported="true"
             android:label="@string/settings" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -65,30 +73,30 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="rnfive.djs.cyclingcomputer.LogReader"
+            android:name="rnfive.htfu.cyclingcomputer.LogReader"
             android:label="@string/log" />
         <activity
-            android:name="rnfive.djs.cyclingcomputer.Activity_DataFieldPrefs"
+            android:name="rnfive.htfu.cyclingcomputer.Activity_DataFieldPrefs"
             android:label="@string/data_field_settings" />
-        <activity android:name="rnfive.djs.cyclingcomputer.strava.activity.StravaLogin"
+        <activity android:name="rnfive.htfu.cyclingcomputer.strava.activity.StravaLogin"
             android:label="Strava Login"/>
-        <activity android:name="rnfive.djs.cyclingcomputer.Activity_AntSensorSearch"
+        <activity android:name="rnfive.htfu.cyclingcomputer.Activity_AntSensorSearch"
             android:label="ANT+ Device Search"/>
 
         <!--
-            <activity android:name="rnfive.djs.cyclingcomputer.activity.Activity_Bluetooth"
+            <activity android:name="rnfive.htfu.cyclingcomputer.activity.Activity_Bluetooth"
                 android:screenOrientation="portrait"
                 android:label="Bluetooth"/>
-            <activity android:name="rnfive.djs.cyclingcomputer.activity.Activity_BleSearch"
+            <activity android:name="rnfive.htfu.cyclingcomputer.activity.Activity_BleSearch"
                 android:label="Bluetooth Device Search"/>
-            <activity android:name="rnfive.djs.cyclingcomputer.activity.Activity_HRV"
+            <activity android:name="rnfive.htfu.cyclingcomputer.activity.Activity_HRV"
                 android:label="HR Variability">
                 <intent-filter>
                     <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
                     <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
                 </intent-filter>
             </activity>
-            <service android:name="rnfive.djs.cyclingcomputer.service.Service_Bluetooth"/>
+            <service android:name="rnfive.htfu.cyclingcomputer.service.Service_Bluetooth"/>
             -->
     </application>
 </manifest>
