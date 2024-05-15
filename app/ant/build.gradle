@@ -3,13 +3,11 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdk 30
 
     defaultConfig {
         minSdkVersion 26
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -25,11 +23,11 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
-    lintOptions {
-        // Turns off checks for the issue IDs you specify.
+    lint {
         disable 'UnusedResources'
     }
+    namespace 'rn5.htfu.ant'
+
 }
 
 dependencies {

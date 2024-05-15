@@ -35,7 +35,6 @@ import static rnfive.htfu.cyclingcomputer.MainActivity.iAntBSCId;
 import static rnfive.htfu.cyclingcomputer.MainActivity.iAntBSId;
 import static rnfive.htfu.cyclingcomputer.MainActivity.preferenceListener;
 import static rnfive.htfu.cyclingcomputer.MainActivity.preferences;
-import static rnfive.htfu.cyclingcomputer.MainActivity.toastListener;
 import static rnfive.htfu.cyclingcomputer.define.StaticVariables.*;
 import static rnfive.htfu.cyclingcomputer.service.Service_Recording.data;
 
@@ -277,7 +276,7 @@ public class Fragment_Preferences extends PreferenceFragmentCompat implements Sh
                                 executor.execute(new Runnable_StravaAuth(context, AuthenticationType.DEAUTHORIZE, null));
                             }
                         } else {
-                            toastListener.onToast("Internet permission required for Strava");
+                            MainActivity.onToast("Internet permission required for Strava");
                         }
                         break;
                     case "KEY_ANT_SEARCH" :

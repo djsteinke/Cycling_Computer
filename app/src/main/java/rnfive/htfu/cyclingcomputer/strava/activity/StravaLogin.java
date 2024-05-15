@@ -71,7 +71,7 @@ public class StravaLogin extends AppCompatActivity {
                     String code = uri.getQueryParameter("code");
                     String error = uri.getQueryParameter("error");
                     if (error != null && !error.isEmpty())
-                        MainActivity.toastListener.onToast("Strava Authorization failed. Reason[" + error + "]");
+                        MainActivity.onToast("Strava Authorization failed. Reason[" + error + "]");
                     return makeResult(code);
                 }
                 return false;

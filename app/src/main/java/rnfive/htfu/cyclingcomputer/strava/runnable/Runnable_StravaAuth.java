@@ -91,7 +91,7 @@ public class Runnable_StravaAuth implements Runnable {
                             .withLastName(response.getAthlete().getLastName())
                             .withPath(MainActivity.filePathProfile);
                     MainActivity.token.save();
-                    MainActivity.toastListener.onToast("Logged into Strava as " + MainActivity.token.getUsername());
+                    MainActivity.onToast("Logged into Strava as " + MainActivity.token.getUsername());
                     break;
                 case REFRESH_TOKEN:
                     if (MainActivity.token != null) {
@@ -99,7 +99,7 @@ public class Runnable_StravaAuth implements Runnable {
                         MainActivity.token.setRefreshToken(response.getRefreshToken());
                         MainActivity.token.setExpirationDate(response.getExpiresAt());
                         MainActivity.token.save();
-                        //MainActivity.toastListener.onToast("Logged into Strava as " + MainActivity.token.getUsername());
+                        //MainActivity.onToast("Logged into Strava as " + MainActivity.token.getUsername());
                     }
                     break;
             }
@@ -107,7 +107,7 @@ public class Runnable_StravaAuth implements Runnable {
             if (type == AuthenticationType.DEAUTHORIZE) {
                 MainActivity.token.delete();
                 MainActivity.token = null;
-                MainActivity.toastListener.onToast("Logged out of Strava.");
+                MainActivity.onToast("Logged out of Strava.");
             }
         }
         if (context != null) {

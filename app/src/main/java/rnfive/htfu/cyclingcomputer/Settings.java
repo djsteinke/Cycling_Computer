@@ -13,12 +13,9 @@ import java.util.concurrent.Executors;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import rnfive.htfu.cyclingcomputer.R;
 import rnfive.htfu.cyclingcomputer.strava.runnable.Runnable_StravaAuth;
 import rnfive.htfu.cyclingcomputer.utils.MenuUtil;
 import rn5.djs.stravalib.authentication.model.AuthenticationType;
-
-import static rnfive.htfu.cyclingcomputer.MainActivity.toastListener;
 
 public class Settings extends AppCompatActivity {
 
@@ -46,7 +43,7 @@ public class Settings extends AppCompatActivity {
             String code = data.getQueryParameter("code");
             String error = data.getQueryParameter("error");
             if (error != null && !error.isEmpty())
-                toastListener.onToast("Strava Authorization failed. Reason[" + error + "]");
+                MainActivity.onToast("Strava Authorization failed. Reason[" + error + "]");
             if (code != null)
                 authorize_strava(code);
         }

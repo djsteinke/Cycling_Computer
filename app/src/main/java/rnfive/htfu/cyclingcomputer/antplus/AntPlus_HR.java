@@ -119,7 +119,7 @@ public class AntPlus_HR {
                     }
 
                     if (bDebug || show)
-                        MainActivity.toastListener.onToast(AntPlus_Util.getResultCode(resultCode,"Heart Rate Monitor"));
+                        MainActivity.onToast(AntPlus_Util.getResultCode(resultCode,"Heart Rate Monitor"));
                 }
             };
 
@@ -134,7 +134,7 @@ public class AntPlus_HR {
                 deviceStateChangeReceiver.onDeviceStateChange(EquipmentSensor.HEARTRATE, String.valueOf(id), SensorState.DISCONNECTED);
                 //bHRExists = false;
                 //iHr = -1;
-                MainActivity.toastListener.onToast("Heart Rate Monitor Disconnected");
+                MainActivity.onToast("Heart Rate Monitor Disconnected");
             }
         }
     };

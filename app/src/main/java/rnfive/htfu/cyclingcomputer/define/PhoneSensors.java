@@ -12,6 +12,7 @@ import java.util.List;
 import androidx.annotation.Nullable;
 import lombok.Getter;
 import lombok.Setter;
+import rnfive.htfu.cyclingcomputer.MainActivity;
 
 import static rnfive.htfu.cyclingcomputer.service.Service_Recording.data;
 
@@ -57,7 +58,7 @@ public class PhoneSensors implements SensorEventListener {
                     sensorManager.registerListener(this, sensorAccelerometer, READING_RATE_1000);
                     sensorManager.registerListener(this, sensorMagneticField, READING_RATE_1000);
                 }
-                if (sensorStepDetector != null) {
+                if (sensorStepDetector != null && MainActivity.bActivityRecognitionGranted) {
                     sensorManager.registerListener(this, sensorStepDetector, SensorManager.SENSOR_DELAY_NORMAL);
                 }
                 Log.d("ACTION", "Sensors registered.");

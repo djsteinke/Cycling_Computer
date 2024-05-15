@@ -88,7 +88,7 @@ public class Activity_AntSensorSearch extends AppCompatActivity implements Confi
             AntSearchResult device = mDeviceAdapter.getItem(position);
             if (device != null) {
                 if (device.bSaved) {
-                    MainActivity.toastListener.onToast(getString(R.string.forget_sensor));
+                    MainActivity.onToast(getString(R.string.forget_sensor));
                 } else {
                     saveDevice(device);
                 }
@@ -145,7 +145,7 @@ public class Activity_AntSensorSearch extends AppCompatActivity implements Confi
                 device.bSaved = true;
                 mDeviceAdapter.notifyDataSetChanged();
                 String name = device.mDeviceType.toString();
-                MainActivity.toastListener.onToast(name.substring(0,name.length()-1) + " " + getString(R.string.saved));
+                MainActivity.onToast(name.substring(0,name.length()-1) + " " + getString(R.string.saved));
             }
         }
     }
@@ -274,7 +274,7 @@ public class Activity_AntSensorSearch extends AppCompatActivity implements Confi
          */
         public void onSearchStopped(RequestAccessResult reason)
         {
-            MainActivity.toastListener.onToast(AntPlus_Util.getResultCode(reason,"Device Search"));
+            MainActivity.onToast(AntPlus_Util.getResultCode(reason,"Device Search"));
 
             runOnUiThread(() -> {
                 if (searchProgress != null)

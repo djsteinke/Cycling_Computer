@@ -43,6 +43,7 @@ import java.util.Objects;
 
 import androidx.annotation.Nullable;
 import rnfive.htfu.cyclingcomputer.BuildConfig;
+import rnfive.htfu.cyclingcomputer.MainActivity;
 import rnfive.htfu.cyclingcomputer.exception.FitFileException;
 
 
@@ -51,13 +52,9 @@ import static rnfive.htfu.cyclingcomputer.MainActivity.filePathSummary;
 import static rnfive.htfu.cyclingcomputer.MainActivity.sDescription;
 import static rnfive.htfu.cyclingcomputer.MainActivity.sName;
 import static rnfive.htfu.cyclingcomputer.MainActivity.sport;
-import static rnfive.htfu.cyclingcomputer.MainActivity.toastListener;
 import static rnfive.htfu.cyclingcomputer.define.StaticVariables.bBCExists;
 import static rnfive.htfu.cyclingcomputer.define.StaticVariables.bBPCadExists;
-import static rnfive.htfu.cyclingcomputer.define.StaticVariables.bMoving;
-import static rnfive.htfu.cyclingcomputer.define.StaticVariables.bPaused;
 import static rnfive.htfu.cyclingcomputer.service.Service_Recording.data;
-import static rnfive.htfu.cyclingcomputer.service.Service_Recording.fitFile;
 
 public class FitFile {
     private static final String TAG = "FitFile";
@@ -101,7 +98,7 @@ public class FitFile {
     }
 
     public void openTmp(String name) throws FitException {
-        toastListener.onToast("Loading saved activity.");
+        MainActivity.onToast("Loading saved activity.");
         startDate = Calendar.getInstance();
         fitFileName = Objects.requireNonNull(fitSdf.get()).format(startDate.getTime()) + ".fit";
         fitFileDir = filePathApp;
@@ -123,7 +120,7 @@ public class FitFile {
         }
         File origFile = new File(filePathApp,name);
         if (origFile.exists() && origFile.delete())
-            toastListener.onToast("Saved activity loaded.");
+            MainActivity.onToast("Saved activity loaded.");
     }
 
     private void fileIdMesg() {

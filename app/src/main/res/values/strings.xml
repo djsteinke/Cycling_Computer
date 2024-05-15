@@ -6,6 +6,8 @@
     <string name="ant_status">ANT+ Status</string>
     <string name="gps_status">GPS Status</string>
     <string name="zero_power">Zero Power Meter</string>
+    <string name="record_activity_attribution_label">RecordActivity</string>
+    <string name="record_activity_service_attribution_label">RecordActivityService</string>
 
     <string name="main_menu">Main Menu</string>
     <string name="record">Record</string>

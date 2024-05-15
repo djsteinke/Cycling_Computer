@@ -17,14 +17,20 @@
     <PreferenceCategory android:title="@string/connect"
         android:key="connectCategory">
         <Preference
+            android:title="@string/ant_search"
+            android:key="KEY_ANT_SEARCH"
+            android:icon="@drawable/ic_antplus">
+        </Preference>
+        <!--
+        <Preference
             android:title="@string/strava"
             android:key="KEY_STRAVA_LOGIN"
             android:icon="@drawable/strava_icon">
         </Preference>
+        -->
         <Preference
-            android:title="@string/ant_search"
-            android:key="KEY_ANT_SEARCH"
-            android:icon="@drawable/ic_antplus">
+            android:key="KEY_STRAVA_LOGIN"
+            android:layout="@layout/preference_strava">
         </Preference>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/athelete_settings"

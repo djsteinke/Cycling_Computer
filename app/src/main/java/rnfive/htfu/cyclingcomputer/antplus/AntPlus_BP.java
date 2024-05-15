@@ -164,8 +164,8 @@ public class AntPlus_BP {
                         break;
                 }
 
-                if (!msg.equals(""))
-                    MainActivity.toastListener.onToast(msg);
+                if (!msg.isEmpty())
+                    MainActivity.onToast(msg);
             });
 
         }
@@ -205,7 +205,7 @@ public class AntPlus_BP {
                     }
 
                     if (bDebug || show)
-                        MainActivity.toastListener.onToast(AntPlus_Util.getResultCode(resultCode,"Power Meter"));
+                        MainActivity.onToast(AntPlus_Util.getResultCode(resultCode,"Power Meter"));
                 }
             };
 
@@ -221,7 +221,7 @@ public class AntPlus_BP {
                 bBPCadExists = false;
                 data.resetPower();
                 iDeviceStateChangeReceiver.onDeviceStateChange(SENSOR_ID, String.valueOf(id), (connected ? SensorState.CONNECTED : SensorState.DISCONNECTED));
-                //toastListener.onToast("Power Meter Disconnected");
+                //MainActivity.onToast("Power Meter Disconnected");
             }
         }
     };
@@ -242,6 +242,6 @@ public class AntPlus_BP {
                         msg += "\n" + requestStatus.toString();
                         break;
                 }
-                MainActivity.toastListener.onToast(msg);
+                MainActivity.onToast(msg);
             };
 }

@@ -1,9 +1,14 @@
 package rnfive.htfu.cyclingcomputer.strava.runnable;
 
+import static rnfive.htfu.cyclingcomputer.MainActivity.token;
+
+import android.util.Log;
+
 import java.io.File;
 
 import lombok.Getter;
 import lombok.Setter;
+import rn5.djs.stravalib.exception.StravaAPIException;
 import rnfive.htfu.cyclingcomputer.define.Files;
 import rn5.djs.stravalib.common.api.StravaConfig;
 import rn5.djs.stravalib.common.model.StravaResponse;
@@ -44,7 +49,7 @@ public class Runnable_StravaUpload implements Runnable {
         File activityFile = new File(MainActivity.filePathApp, file_name);
 
         try {
-            StravaConfig config = StravaConfig.withToken(MainActivity.token)
+            StravaConfig config = StravaConfig.withToken(token)
                     .debug()
                     .build();
             UploadAPI uploadAPI = new UploadAPI(config);
@@ -62,14 +67,18 @@ public class Runnable_StravaUpload implements Runnable {
                 result = "Upload successful [" + uploadStatus.getCode() + "]\n";
             }
             result += uploadStatus.getResponse().getStatus();
-        } catch (Exception e ) {
+        } catch (StravaAPIException e) {
+            result = e.getMessage() + " " + e.getCause();
+            Files.logMesg("E",TAG, result);
+        } catch (RuntimeException e ) {
             result = e.getMessage();
             Files.logMesg("E",TAG, e.getMessage());
+            Log.e(TAG, e.toString());
         }
 
         if (listener != null) {
             listener.onStravaResponse(result);
         }
-        MainActivity.toastListener.onToast(result);
+        MainActivity.onToast(result);
     }
 }

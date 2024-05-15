@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import lombok.Getter;
+import rnfive.htfu.cyclingcomputer.define.FitEncode;
 import rnfive.htfu.cyclingcomputer.define.FitFile;
 import rnfive.htfu.cyclingcomputer.R;
 import rnfive.htfu.cyclingcomputer.antplus.AntPlus_BC;
@@ -62,9 +63,9 @@ public class Service_Recording extends Service implements LocationListener, IDev
     public static final String ZERO_POWER = "rnfive.htfu.cyclingcomputer.RecordingService.ZERO_POWER";
     public static final String CRASH = "rnfive.htfu.cyclingcomputer.RecordingService.CRASH";
 
-    public static final String CHANNEL_ID = "RECORDING_SERVICE_CHANNEL";
+    public static final String CHANNEL_ID = "rnfive.htfu.cyclingcomputer.RecordingService.RECORDING_SERVICE_CHANNEL";
     public static Data data;
-    public static FitFile fitFile;
+    public static FitEncode fitFile;
 
     public static boolean bServiceStarted;
     private static PowerManager.WakeLock wakeLock;
@@ -118,7 +119,7 @@ public class Service_Recording extends Service implements LocationListener, IDev
             long t1 = System.currentTimeMillis();
             new Runnable_UpdateValues().run();
             if (StaticVariables.bStarted && !StaticVariables.bPaused) {
-                fitFile.recordMesg();
+                fitFile.recordMsg();
             }
             //Executors.newSingleThreadExecutor().execute(new Runnable_UpdateValues());
             handler.postDelayed(this,1000);
@@ -169,8 +170,8 @@ public class Service_Recording extends Service implements LocationListener, IDev
                 service(STOP);
                 break;
             case CRASH:
-                if (fitFile != null && fitFile.isOpen())
-                    fitFile.closeTmp();
+                //if (fitFile != null && fitFile.isOpen())
+                //    fitFile.closeTmp();
                 service(STOP);
                 break;
             default:
@@ -189,7 +190,7 @@ public class Service_Recording extends Service implements LocationListener, IDev
         serviceRunning = (action == START);
         if (action == STOP) {
             //handlerThread.quit();
-            MainActivity.toastListener.onToast("Max MS[" + updateMaxTime + "]");
+            MainActivity.onToast("Max MS[" + updateMaxTime + "]");
             stopSelf();
         }
     }
@@ -227,12 +228,13 @@ public class Service_Recording extends Service implements LocationListener, IDev
     private void createNotificationChannel() {
         NotificationChannel serviceChannel = new NotificationChannel(
                 CHANNEL_ID,
-                "Recording Service Channel",
+                "Recording Service",
                 NotificationManager.IMPORTANCE_DEFAULT
         );
+        serviceChannel.setDescription("Summary of current activity being recorded.");
         NotificationManager manager = getSystemService(NotificationManager.class);
         for (NotificationChannel n : manager.getNotificationChannels()) {
-            Log.d(TAG, "Notification: " + n.getId());
+            Log.d(TAG, "Notification: " + n.getId() + " , " + n.getName());
         }
         manager.createNotificationChannel(serviceChannel);
     }
@@ -315,7 +317,7 @@ public class Service_Recording extends Service implements LocationListener, IDev
                     if (!bcAnt.isConnected() && !bcAnt.isSearching()) {
                         bcAnt.connect();
                         if (StaticVariables.bDebug)
-                            MainActivity.toastListener.onToast("Cadence connecting...");
+                            MainActivity.onToast("Cadence connecting...");
                     }
                 }
             }
@@ -403,7 +405,7 @@ public class Service_Recording extends Service implements LocationListener, IDev
                 boolean bpExists = StaticVariables.bBPExists;
                 StaticVariables.bBPExists = MainActivity.bBpAntExists || MainActivity.bBpBleExists;
                 if (bpExists != StaticVariables.bBPExists)
-                    MainActivity.toastListener.onPowerConnect();
+                    MainActivity.powerListener.onConnect();
                 break;
             case EquipmentSensor.HEARTRATE:
                 if (hrAnt != null) {
@@ -416,7 +418,7 @@ public class Service_Recording extends Service implements LocationListener, IDev
                 data.setHr(-1);
                 break;
         }
-        MainActivity.toastListener.onToast(EquipmentSensor.getSensorName(id) + " " + sensorState.getName());
+        MainActivity.onToast(EquipmentSensor.getSensorName(id) + " " + sensorState.getName());
     }
 
     @Override

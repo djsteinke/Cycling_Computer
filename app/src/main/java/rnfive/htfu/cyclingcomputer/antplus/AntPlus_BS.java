@@ -160,7 +160,7 @@ public class AntPlus_BS {
                     }
 
                     if (bDebug || show)
-                        MainActivity.toastListener.onToast(getResultCode(resultCode,SENSOR));
+                        MainActivity.onToast(getResultCode(resultCode,SENSOR));
                 }
             };
 
@@ -174,7 +174,7 @@ public class AntPlus_BS {
                 connected = false;
                 bBSExists = false;
                 data.setSpeedSen(-1);
-                MainActivity.toastListener.onToast(SENSOR + " Disconnected");
+                MainActivity.onToast(SENSOR + " Disconnected");
             }
         }
     };

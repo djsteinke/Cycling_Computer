@@ -3,14 +3,10 @@ package rnfive.htfu.cyclingcomputer.define;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.os.Build;
-import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import rnfive.htfu.cyclingcomputer.define.enums.ConfirmResult;
@@ -29,6 +25,7 @@ public final class Permissions implements ActivityCompat.OnRequestPermissionsRes
         MainActivity.bWriteGranted = true; //ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
         MainActivity.bGpsGranted = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         MainActivity.bInternetGranted = ContextCompat.checkSelfPermission(activity, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED;
+        MainActivity.bActivityRecognitionGranted = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED;
 
         /*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -43,7 +40,7 @@ public final class Permissions implements ActivityCompat.OnRequestPermissionsRes
         */
 
 
-        if (!MainActivity.bGpsGranted || !MainActivity.bInternetGranted || !MainActivity.bWriteGranted) {
+        if (!MainActivity.bGpsGranted || !MainActivity.bInternetGranted || !MainActivity.bWriteGranted || !MainActivity.bActivityRecognitionGranted) {
             ArrayList<String> al_s_permissions = new ArrayList<>();
             if (!MainActivity.bGpsGranted) {
                 //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
@@ -52,6 +49,8 @@ public final class Permissions implements ActivityCompat.OnRequestPermissionsRes
             }
             if (!MainActivity.bInternetGranted)
                 al_s_permissions.add(Manifest.permission.INTERNET);
+            if (!MainActivity.bActivityRecognitionGranted)
+                al_s_permissions.add(Manifest.permission.ACTIVITY_RECOGNITION);
 
             Dialogs.vals = new String[al_s_permissions.size()];
             Dialogs.vals = al_s_permissions.toArray(Dialogs.vals);
@@ -68,6 +67,10 @@ public final class Permissions implements ActivityCompat.OnRequestPermissionsRes
             if (!MainActivity.bInternetGranted && ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.INTERNET)) {
                 desc += (desc.isEmpty() ? "" : "\n");
                 desc += "Internet is required to upload activity and gather weather information.";
+            }
+            if (!MainActivity.bActivityRecognitionGranted && ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACTIVITY_RECOGNITION)) {
+                desc += (desc.isEmpty() ? "" : "\n");
+                desc += "Activity Recognition is required for data fields using users steps.";
             }
 
             if (desc.isEmpty())
@@ -89,7 +92,7 @@ public final class Permissions implements ActivityCompat.OnRequestPermissionsRes
                     if (grantResults.length > 0
                             && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                         if (StaticVariables.bDebug && !MainActivity.bGpsGranted)
-                            MainActivity.toastListener.onToast("Location Permission Granted");
+                            MainActivity.onToast("Location Permission Granted");
                         MainActivity.bGpsGranted = true;
                     } else {
                         MainActivity.bGpsGranted = false;
@@ -99,7 +102,7 @@ public final class Permissions implements ActivityCompat.OnRequestPermissionsRes
                     if ((grantResults.length > 0
                             && grantResults[i] == PackageManager.PERMISSION_GRANTED)) {
                         if (StaticVariables.bDebug && !MainActivity.bWriteGranted)
-                            MainActivity.toastListener.onToast("Write Permission Granted");
+                            MainActivity.onToast("Write Permission Granted");
                         MainActivity.bWriteGranted = true;
                     } else
                         MainActivity.bWriteGranted = false;
@@ -108,7 +111,7 @@ public final class Permissions implements ActivityCompat.OnRequestPermissionsRes
                     if (grantResults.length > 0
                             && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                         if (StaticVariables.bDebug && !MainActivity.bInternetGranted)
-                            MainActivity.toastListener.onToast("Internet Permission Granted");
+                            MainActivity.onToast("Internet Permission Granted");
                         MainActivity.bInternetGranted = true;
                     } else
                         MainActivity.bInternetGranted = false;

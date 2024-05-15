@@ -89,7 +89,7 @@ public class AntPlus_BC {
             pcc.subscribeBatteryStatusEvent((l, enumSet, bigDecimal, batteryStatus) -> {
                 deviceBatteryStatus = batteryStatus;
                 bcAntBattery = batteryStatus.getIntValue();
-                MainActivity.toastListener.onToast("CADENCE BAT: " + batteryStatus.toString());
+                MainActivity.onToast("CADENCE BAT: " + batteryStatus.toString());
             });
 
             pcc.subscribeRawCadenceDataEvent((estTimestamp, eventFlags, timestampOfLastEvent, cumulativeRevolutions) -> {
@@ -135,7 +135,7 @@ public class AntPlus_BC {
                     }
 
                     if (bDebug || show)
-                        MainActivity.toastListener.onToast(AntPlus_Util.getResultCode(resultCode,SENSOR));
+                        MainActivity.onToast(AntPlus_Util.getResultCode(resultCode,SENSOR));
                 }
             };
 
@@ -149,7 +149,7 @@ public class AntPlus_BC {
                 connected = false;
                 bBCExists = false;
                 data.setCadBC(-1);
-                MainActivity.toastListener.onToast(SENSOR + " Disconnected");
+                MainActivity.onToast(SENSOR + " Disconnected");
             }
         }
     };

@@ -44,7 +44,7 @@ public class Service_StravaUpload extends IntentService implements StravaUploadR
     }
 
     private void upload() {
-        Runnable_StravaUpload runnable = new Runnable_StravaUpload(fitFile.getFitFileName(), sName, sDescription);
+        Runnable_StravaUpload runnable = new Runnable_StravaUpload(fitFile.getFileName(), sName, sDescription);
         runnable.withListener(this);
         if (sport == Sport.RUNNING)
             runnable.setRunActivity(true);

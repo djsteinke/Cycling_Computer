@@ -7,8 +7,10 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.hardware.SensorManager;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
@@ -30,9 +32,7 @@ import com.garmin.fit.Sport;
 
 import java.io.File;
 import java.time.Instant;
-import java.util.Calendar;
 import java.util.EnumMap;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -47,12 +47,11 @@ import lombok.Getter;
 import rnfive.htfu.cyclingcomputer.define.Arrays;
 import rnfive.htfu.cyclingcomputer.define.Bearing;
 import rnfive.htfu.cyclingcomputer.define.DataFields;
-import rnfive.htfu.cyclingcomputer.define.Devices;
 import rnfive.htfu.cyclingcomputer.define.Dialogs;
 import rnfive.htfu.cyclingcomputer.define.EquipmentSensor;
 import rnfive.htfu.cyclingcomputer.define.FieldDef;
 import rnfive.htfu.cyclingcomputer.define.Files;
-import rnfive.htfu.cyclingcomputer.define.FitException;
+import rnfive.htfu.cyclingcomputer.define.FitEncode;
 import rnfive.htfu.cyclingcomputer.define.FitFile;
 import rnfive.htfu.cyclingcomputer.define.Gears;
 import rnfive.htfu.cyclingcomputer.define.Permissions;
@@ -65,10 +64,9 @@ import rnfive.htfu.cyclingcomputer.define.enums.SensorState;
 import rnfive.htfu.cyclingcomputer.define.listeners.ConfirmListener;
 import rnfive.htfu.cyclingcomputer.define.listeners.FragmentListener;
 import rnfive.htfu.cyclingcomputer.define.listeners.IDeviceStateChangeReceiver;
+import rnfive.htfu.cyclingcomputer.define.listeners.PowerListener;
 import rnfive.htfu.cyclingcomputer.define.listeners.PreferenceListener;
 import rnfive.htfu.cyclingcomputer.define.listeners.RotateListener;
-import rnfive.htfu.cyclingcomputer.define.listeners.ToastListener;
-import rnfive.htfu.cyclingcomputer.exception.FitFileException;
 import rnfive.htfu.cyclingcomputer.service.Service_Recording;
 import rnfive.htfu.cyclingcomputer.service.Service_StravaUpload;
 import rnfive.htfu.cyclingcomputer.strava.runnable.Runnable_StravaAuth;
@@ -89,7 +87,7 @@ import static rnfive.htfu.cyclingcomputer.utils.MenuUtil.menuItemSelector;
 
 @Getter
 public class MainActivity extends AppCompatActivity
-        implements ToastListener, ConfirmListener, PreferenceListener, FragmentListener, RotateListener,
+        implements PowerListener, ConfirmListener, PreferenceListener, FragmentListener, RotateListener,
         IDeviceStateChangeReceiver {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -104,7 +102,7 @@ public class MainActivity extends AppCompatActivity
     private static final int MY_PERMISSIONS_REQUEST = 1;
 
     public static Preferences preferences;
-    public static Devices devices = new Devices();
+    //public static Devices devices = new Devices();
 
     private static final FieldDef fieldDef = new FieldDef();
 
@@ -160,11 +158,11 @@ public class MainActivity extends AppCompatActivity
 
     public static LocationManager locationManager;
     public static DisplayMetrics displayMetrics;
-    public static ToastListener toastListener;
     public static PreferenceListener preferenceListener;
     public static FragmentListener fragmentListener;
     public static RotateListener rotateListener;
     private static ConfirmListener confirmListener;
+    public static PowerListener powerListener;
 
     public static boolean bAntSupportMsgDisplayed;
     public static boolean bAntSupported;
@@ -182,6 +180,7 @@ public class MainActivity extends AppCompatActivity
     public static boolean bWriteGranted;
     public static boolean bGpsGranted;
     public static boolean bInternetGranted;
+    public static boolean bActivityRecognitionGranted;
 
     //public final static File filePathDownloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     public static File filePathApp;
@@ -204,9 +203,10 @@ public class MainActivity extends AppCompatActivity
     private static boolean bFragmentReady;
     private Fragment_DataFields fragmentDataFields;
     public static FragmentManager fm;
-    protected App app;
 
     public static int[] activityDataFields = new int[fieldDef.getSize()];
+
+    private Context attributionContext;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -220,15 +220,16 @@ public class MainActivity extends AppCompatActivity
 
         Files.logMesg("D","onCreate", null);
 
-        app = (App) getApplication();
-        app.setContext(this);
-
         activity = this;
         tvDebug = findViewById(R.id.main_debug);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            attributionContext = createAttributionContext("recordActivity");
+            locationManager = (LocationManager) attributionContext.getSystemService(Context.LOCATION_SERVICE);
+        } else {
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        }
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        toastListener = this;
+        powerListener = this;
         confirmListener = this;
         preferenceListener = this;
         fragmentListener = this;
@@ -258,7 +259,7 @@ public class MainActivity extends AppCompatActivity
 
         setButtonVisibility(1);
         getPreferences(true);
-        devices.load();
+        //devices.load();
 
         bTrainer = false;
         bCommute = false;
@@ -268,18 +269,15 @@ public class MainActivity extends AppCompatActivity
         if (fitFileNameTmp != null) {
             Log.d("onCreate","loading fit file[" + fitFileNameTmp + "]");
             Files.logMesg("DEBUG","onCreate", "FitFile exists. Load existing file.");
-            try {
-                fitFile = new FitFile();
-                fitFile.openTmp(fitFileNameTmp);
-                bStarted = true;
-                bPaused = true;
-                ibStart.setActivated(false);
-                setButtonVisibility(2);
-                setOnClick(true);
-            } catch (FitException | FitFileException e) {
-                setFitFileName(null);
-                toastListener.onToast(e.getMessage());
-            }
+
+            fitFile = new FitEncode();
+            fitFile.create(fitFileNameTmp);
+            bStarted = true;
+            bPaused = true;
+            ibStart.setActivated(false);
+            setButtonVisibility(2);
+            setOnClick(true);
+
         }
 
         token = Token.fromFile(filePathProfile);
@@ -715,12 +713,12 @@ public class MainActivity extends AppCompatActivity
         bPaused = false;
         ibStart.setActivated(true);
         setButtonVisibility(2);
-        fitFile = new FitFile();
+        fitFile = new FitEncode();
         fitFile.create(null);
         // Reset Variables
         // data = new Data();
         sendToService(START_RECORDING);
-        setFitFileName(fitFile.getFitFileName());
+        setFitFileName(fitFile.getFileName());
         startService();
         setKeepAwake();
     }
@@ -762,13 +760,11 @@ public class MainActivity extends AppCompatActivity
             if (save) {
                 fitFile.close();
                 FitFile summary = new FitFile();
-                summary.create(fitFile.getFitFileName());
+                summary.create(fitFile.getFileName());
                 summary.close();
                 if (token != null) {
                     startUploadService();
                 }
-            } else {
-                fitFile.delete();
             }
         }
         //fitFile = null;
@@ -780,7 +776,7 @@ public class MainActivity extends AppCompatActivity
         bPaused = !bPaused;
         ibStart.setActivated(!bPaused);
         if (fitFile != null) {
-            fitFile.eventMesg((bPaused?EventType.STOP:EventType.START), true);
+            fitFile.eventMsg(bPaused?EventType.STOP:EventType.START);
         }
         sendToService((bPaused ? STOP_RECORDING : START_RECORDING));
     }
@@ -788,7 +784,7 @@ public class MainActivity extends AppCompatActivity
     private void lap() {
         Files.logMesg("D","lap", null);
         if (fitFile != null) {
-            fitFile.lapMesg();
+            fitFile.lapMsg();
         }
         resetLapVariables();
     }
@@ -928,7 +924,7 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == reqCode && resultCode == RESULT_OK && data != null) {
             String code = data.getStringExtra(stravaCode);
             // Use code to obtain accessToken
-            toastListener.onToast(code);
+            onToast(code);
         }
     }
 
@@ -978,8 +974,8 @@ public class MainActivity extends AppCompatActivity
         switch (confirmResult) {
             case POSITIVE:
                 //TODO save for later
-                setFitFileName(fitFile.getFitFileName());
-                fitFile.closeTmp();
+                setFitFileName(fitFile.getFileName());
+                fitFile.close();
                 finish();
                 break;
             case NEGATIVE:
@@ -1018,6 +1014,14 @@ public class MainActivity extends AppCompatActivity
         fragmentDataFields = fragment_dataFields;
     }
 
+    public static void onToast(String msg) {
+        if (!msg.isEmpty()) {
+            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(App.getContext(), msg, Toast.LENGTH_SHORT).show());
+            Files.logMesg("D","onToast", msg);
+            Log.d("onToast",msg);
+        }
+    }
+
     @Override
     public void onRotate() {
         bVertical = !bVertical;
@@ -1034,15 +1038,6 @@ public class MainActivity extends AppCompatActivity
         startFragment();
         setOnClick(true);
         setButtonVisibility(buttonVisibility);
-    }
-
-    @Override
-    public void onToast(String msg) {
-        if (!msg.isEmpty()) {
-            runOnUiThread(() -> Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show());
-            Files.logMesg("D","onToast", msg);
-            Log.d("onToast",msg);
-        }
     }
 
     @Override
@@ -1086,7 +1081,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onPowerConnect() {
+    public void onConnect() {
         invalidateOptionsMenu();
     }
 
@@ -1133,8 +1128,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         if (bStarted)
-            Dialogs.Confirm(activity, confirmListener, ConfirmType.EXIT,getString(R.string.exit_alert),null,getString(R.string.save),getString(R.string.discard),getString(R.string.cancel));
+            Dialogs.Confirm(activity, confirmListener, ConfirmType.EXIT, getString(R.string.exit_alert), null, getString(R.string.save), getString(R.string.discard), getString(R.string.cancel));
         else
             finish();
     }
@@ -1187,7 +1183,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         Files.logMesg("D","onDestroy", null);
         Log.d("MainActivity","onDestroy()");
         bStarted = false;
@@ -1196,11 +1192,13 @@ public class MainActivity extends AppCompatActivity
         phoneSensors.stopUpdates();
         //stopGps();
         //destroyBle();
+        /*
         if (fitFile != null && fitFile.isOpen()) {
             Log.d("MainActivity","onDestroy() close fitFile");
             setFitFileName(fitFile.getFitFileName());
             fitFile.closeTmp();
         }
+         */
         stopService();
         super.onDestroy();
     }

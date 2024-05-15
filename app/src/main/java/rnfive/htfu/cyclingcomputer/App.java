@@ -6,20 +6,27 @@ import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+
+import org.jetbrains.annotations.Nullable;
+
 import rnfive.htfu.cyclingcomputer.service.Service_Recording;
 
 public class App extends Application {
-    private Context context;
+
+    private static Application sApplication;
+
     @Override
     public void onCreate() {
 
         super.onCreate();
+        sApplication = this;
 
         Thread.setDefaultUncaughtExceptionHandler(
                 this::handleUncaughtException);
     }
 
-    void handleUncaughtException (Thread thread, Throwable e) {
+    private void handleUncaughtException(Thread thread, Throwable e) {
+        Context context = getContext();
         Intent serviceIntent = new Intent(context, Service_Recording.class);
         serviceIntent.setAction(Service_Recording.CRASH);
         ContextCompat.startForegroundService(context, serviceIntent);
@@ -27,7 +34,11 @@ public class App extends Application {
         activity.finish();
     }
 
-    void setContext(Context context) {
-        this.context = context;
+    private static Application getApplication() {
+        return sApplication;
+    }
+
+    public static Context getContext() {
+        return getApplication().getApplicationContext();
     }
 }
