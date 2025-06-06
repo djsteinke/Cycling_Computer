@@ -184,7 +184,7 @@ public class Fragment_Preferences extends PreferenceFragmentCompat implements Sh
     private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            int angle = (int)(data.getAngle()*10);
+            int angle = (int)(data.getAngleRad()*100);
             /*
             if (lastAngle == angle && dialogProgress < 100)
                 dialogProgress = 100;
@@ -198,7 +198,7 @@ public class Fragment_Preferences extends PreferenceFragmentCompat implements Sh
                 progressBar.setProgress(dialogProgress);
             }
             if (dialogProgress >= 100) {
-                dGradeOffset = angle/10.0d;
+                dGradeOffset = Math.toDegrees(angle/100.0d);
                 preferences.setDGradeOffset(dGradeOffset);
                 post = false;
                 setSummary("KEY_GRADE_OFFSET");

@@ -27,6 +27,7 @@ import java.util.List;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
+
 import lombok.Getter;
 import lombok.Setter;
 import rnfive.htfu.cyclingcomputer.define.DataFields;

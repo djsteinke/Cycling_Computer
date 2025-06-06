@@ -18,8 +18,18 @@ public class Filters {
         return oldVal + f_alpha * (newVal - oldVal);
     }
 
+    public static float floatUltraLPFilter(float oldVal, float newVal) {
+        float f_alpha = 0.05f;
+        return oldVal + f_alpha * (newVal - oldVal);
+    }
+
     public static double doubleLPFilter(double oldVal, double newVal) {
         double f_alpha = 0.25d;
         return oldVal + f_alpha * (newVal - oldVal);
+    }
+
+    private static final double f_dulp = 0.05d;
+    public static double doubleULPFilter(double oldVal, double newVal) {
+        return oldVal + f_dulp * (newVal - oldVal);
     }
 }

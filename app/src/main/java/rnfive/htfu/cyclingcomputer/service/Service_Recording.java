@@ -205,7 +205,7 @@ public class Service_Recording extends Service implements LocationListener, IDev
         String title = null;
         if (StaticVariables.bStarted) {
             text = Strings.getDistanceString(d) + (StaticVariables.bMetric?" km":" mi");
-            text += "\n" + Strings.getSpeedString(data.getSpeedAvg()) + (StaticVariables.bMetric?" kph":" mph");
+            //text += "\n" + Strings.getSpeedString(data.getSpeedAvg()) + (StaticVariables.bMetric?" kph":" mph");
             title = (StaticVariables.bPaused ? "Paused" : "Recording");
         }
 

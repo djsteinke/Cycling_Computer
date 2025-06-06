@@ -29,7 +29,8 @@ public class Data {
     private double distanceLap;
     private double distancePrev;
     private double angle;
-    private Double[] angleArray = {0.0d,0.0d,0.0d,0.0d,0.0d};
+    private double angleRad;
+    private Double[] angleArray = {0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d};
 
     private double grade;
     private Double[][] gradeArray = new Double[2][20];
@@ -109,15 +110,43 @@ public class Data {
 
     public Data() {}
 
+    private int updateAngleCnt;
     void updateAngle(double in) {
-        Arrays.updateArray(angleArray, in);
-        angle = Arrays.getAvg(angleArray);
+        //in = Filters.doubleLPFilter(angleArray[0], in);
+        /*
+        updateAngleCnt++;
+        if (updateAngleCnt >= 2) {
+            Arrays.updateArray(angleArray, in);
+            angle = Arrays.getAvg(angleArray);
+            updateGrade();
+            updateAngleCnt = 0;
+        }
+
+         */
+        angle = in;
         updateGrade();
     }
 
-    void updateGrade() {
-        double rad = (angle - dGradeOffset) * Math.PI / 180.0d;
-        grade = Math.round(StrictMath.tan(rad) * 500.0d)/5.0d;
+    void updateAngleRad(double in) {
+        angleRad = in;
+        updateGradeRad();
+    }
+
+    void updateGradeRad() {
+        double adjustedRad = angleRad - Math.toRadians(dGradeOffset);
+        grade = Math.round(StrictMath.tan(adjustedRad) * 200.0d) / 2.0d;
+        Log.d("updateGradeRad()", "angle : " + Math.toDegrees(angleRad) + ", grade : " + grade);
+    }
+
+    private int updateGradeCnt;
+    private void updateGrade() {
+        updateGradeCnt ++;
+        if (updateGradeCnt >= 5) {
+            double rad = (angle - dGradeOffset) * Math.PI / 180.0d;
+            grade = Math.round(StrictMath.tan(rad) * 200.0d) / 2.0d;
+            Log.d("updateGrade()", "angle : " + angle + ", offset : " + dGradeOffset + ", grade : " + grade);
+            updateGradeCnt = 0;
+        }
     }
 
     public void setAltitudeValue(double altitude) {
