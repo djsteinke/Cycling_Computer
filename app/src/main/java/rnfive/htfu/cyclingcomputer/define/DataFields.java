@@ -4,7 +4,7 @@ import android.util.SparseArray;
 
 import rnfive.htfu.cyclingcomputer.R;
 
-public class DataFields {
+public final class DataFields {
     private DataFields() {}
 
     public static final int NONE = 2000;
@@ -53,6 +53,9 @@ public class DataFields {
     public static final int TIME_OF_DAY = 2038;
     public static final int GEAR_RATIO = 2039;
     public static final int ANGLE = 2040;
+    public static final int GRADE_ALTITUDE = 2041;
+    public static final int POWER_20M = 2042;
+    public static final int POWER_5M = 2043;
 
     public static final int[][] HR_ZONE = {
             {0,R.color.black,R.color.white},
@@ -96,6 +99,8 @@ public class DataFields {
         dataFieldMap.put(POWER_3S,new Integer[] {R.string.power_3s,R.string.power_3s,R.string.w,R.string.w,-1,-1,-1});
         dataFieldMap.put(POWER_10S,new Integer[] {R.string.power_10s,R.string.power_10s,R.string.w,R.string.w,-1,-1,-1});
         dataFieldMap.put(POWER_30S,new Integer[] {R.string.power_30s,R.string.power_30s,R.string.w,R.string.w,-1,-1,-1});
+        dataFieldMap.put(POWER_5M,new Integer[] {R.string.power_5m,R.string.power_5m,R.string.w,R.string.w,-1,-1,-1});
+        dataFieldMap.put(POWER_20M,new Integer[] {R.string.power_20m,R.string.power_20m,R.string.w,R.string.w,-1,-1,-1});
         dataFieldMap.put(TORQUE,new Integer[] {R.string.torque_effectiveness,R.string.torque,R.string.percent,R.string.percent,-1,-1,-1});
         dataFieldMap.put(BALANCE,new Integer[] {R.string.balance,R.string.balance,R.string.percent,R.string.percent,-1,-1,-1});
         dataFieldMap.put(SMOOTHNESS,new Integer[] {R.string.pedal_smoothness,R.string.smoothness,R.string.percent,R.string.percent,-1,-1,-1});
@@ -104,6 +109,7 @@ public class DataFields {
         dataFieldMap.put(ASCENT,new Integer[] {R.string.ascent,R.string.ascent,R.string.ft,R.string.m,-1,-1,-1});
         dataFieldMap.put(DESCENT,new Integer[] {R.string.descent,R.string.descent,R.string.ft,R.string.m,-1,-1,-1});
         dataFieldMap.put(GRADE,new Integer[] {R.string.grade,R.string.grade,R.string.percent,R.string.percent,-1,-1,-1});
+        dataFieldMap.put(GRADE_ALTITUDE,new Integer[] {R.string.grade_alt,R.string.grade,R.string.percent,R.string.percent,-1,-1,-1});
         dataFieldMap.put(TEMPERATURE,new Integer[] {R.string.temperature,R.string.temperature,R.string.degF,R.string.degC,-1,-1,-1});
         dataFieldMap.put(WIND,new Integer[] {R.string.wind,R.string.wind,R.string.m,R.string.k,R.string.h,R.string.h,-1});
         dataFieldMap.put(BEARING,new Integer[] {R.string.bearing,R.string.bearing,-1,-1,-1,-1,-1});

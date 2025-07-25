@@ -195,7 +195,7 @@ public class Service_Recording extends Service implements LocationListener, IDev
         }
     }
 
-    void setNotificationMessage() {
+    private void setNotificationMessage() {
         Intent notificationIntent = new Intent(this, Service_Recording.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
@@ -275,7 +275,7 @@ public class Service_Recording extends Service implements LocationListener, IDev
         return false;
     }
 
-    void connectAntPlus() {
+    private void connectAntPlus() {
         long lRunTime = System.currentTimeMillis();
         if (hrAnt == null)
             hrAnt = new AntPlus_HR(iAntHRId, this, this);
@@ -450,15 +450,14 @@ public class Service_Recording extends Service implements LocationListener, IDev
             }
 
             float speed = 0.0f;
-            if (location.hasSpeed()) {
+            if (location.hasSpeed() && location.getSpeed() > StaticVariables.speedMin) {
                 speed = location.getSpeed();
-                //Log.d(TAG, "Speed[" + speed + "]");
-                speed = (speed > StaticVariables.speedMin ? speed : 0.0f);
             }
             float gpsSpeed = (speed + data.getSpeedGpsPrev())/2.0f;
             data.setSpeedGps(gpsSpeed);
             data.setSpeedGpsPrev(speed);
 
+            data.setGpsAltitudeValue(location.getAltitude());
             if (phoneSensors.getSensorPressure() == null) {
                 data.setAltitudeValue(location.getAltitude());
                 // TODO - add gps altitude delta
@@ -474,6 +473,7 @@ public class Service_Recording extends Service implements LocationListener, IDev
                 double distanceP2P = 0;
                 if (data.getLocationPrev() != null)
                     distanceP2P = location.distanceTo(data.getLocationPrev());
+                data.setLocationGrade(distanceP2P);
                 data.setLocationPrev(location);
                 data.updateGPSDistance(distanceP2P);
             }

@@ -10,6 +10,10 @@ import static rnfive.htfu.cyclingcomputer.define.StaticVariables.dGradeOffset;
 import static rnfive.htfu.cyclingcomputer.define.StaticVariables.speedMin;
 import static rnfive.htfu.cyclingcomputer.service.Service_Recording.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 @Getter
 @Setter
 public class Data {
@@ -17,6 +21,7 @@ public class Data {
     private static final String TAG = Data.class.getSimpleName();
     // Location
     private Altitude altitude = new Altitude();
+    private Location location;
     private double latitude;
     private double longitude;
     private Location locationPrev;
@@ -33,7 +38,9 @@ public class Data {
     private Double[] angleArray = {0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d,0.0d};
 
     private double grade;
-    private Double[][] gradeArray = new Double[2][20];
+
+    private List<Double[]> locationGradeArray = new ArrayList<>();
+    private double locationGrade;
 
     // Time
     private long msLast;
@@ -81,6 +88,9 @@ public class Data {
     private Integer[] power3sArray = new Integer[3];
     private Integer[] power10sArray = new Integer[10];
     private Integer[] power30sArray = new Integer[30];
+    private Integer[] power5mArray = new Integer[300];
+    private Integer[] power20mArray = new Integer[1200];
+    private List<Integer> powerHistory = new ArrayList<>();
     private int powerMax;
     private int powerMaxLap;
     private int powerAvg;
@@ -135,7 +145,7 @@ public class Data {
     void updateGradeRad() {
         double adjustedRad = angleRad - Math.toRadians(dGradeOffset);
         grade = Math.round(StrictMath.tan(adjustedRad) * 200.0d) / 2.0d;
-        Log.d("updateGradeRad()", "angle : " + Math.toDegrees(angleRad) + ", grade : " + grade);
+        //Log.d("updateGradeRad()", "angle : " + Math.toDegrees(angleRad) + ", grade : " + grade);
     }
 
     private int updateGradeCnt;
@@ -147,6 +157,50 @@ public class Data {
             Log.d("updateGrade()", "angle : " + angle + ", offset : " + dGradeOffset + ", grade : " + grade);
             updateGradeCnt = 0;
         }
+    }
+
+    private static final double locationGradeDistance = 61.0;
+    public void setLocationGrade(double p2pDistance) {
+        locationGradeArray.add(new Double[] {altitude.getAltitudeFromCurrentPressure(), p2pDistance});
+        boolean sizeMet = false;
+        int arraySize = locationGradeArray.size();
+        while (arraySize > 9) {
+            locationGradeArray.remove(0);
+            sizeMet = true;
+            arraySize = locationGradeArray.size();
+        }
+        double distance = 0.0;
+        int distanceMet = 0;
+        for (int i = 0; i < arraySize; i++) {
+            distance += locationGradeArray.get(i)[1];
+            if (distance >= locationGradeDistance) {
+                distanceMet = i;
+                break;
+            }
+        }
+
+        if (distanceMet > 0 || sizeMet) {
+            double altitudeGain;
+            if (distanceMet > 0) {
+                altitudeGain = locationGradeArray.get(distanceMet)[0] - locationGradeArray.get(0)[0];
+            } else {
+                altitudeGain = locationGradeArray.get(locationGradeArray.size() - 1)[0] - locationGradeArray.get(0)[0];
+            }
+            locationGrade = Math.round(altitudeGain / distance * 200.0d) / 2.0d;
+        } else {
+            locationGrade = 0.0d;
+        }
+    }
+
+    public void setAbsolutePressure(double pressureMsl) {
+        altitude.setAbsolutePressure(pressureMsl);
+    }
+
+    public void setGpsAltitudeValue(double altitude) {
+        this.altitude.setGpsAltitude(altitude);
+    }
+    public double getGpsAltitudeValue() {
+        return altitude.getGpsAltitude();
     }
 
     public void setAltitudeValue(double altitude) {
@@ -168,11 +222,25 @@ public class Data {
         return altitude.getDescentLap();
     }
 
+    public int getPowerHistoryAvg(int size) {
+        int arrayCount = Math.min(powerHistory.size(), size);
+        int powerSum = 0;
+        for (int i = 0; i < arrayCount; i++) {
+            powerSum += powerHistory.get(i);
+        }
+        return Math.round((float) powerSum / size);
+    }
+
     public void updatePower() {
         if (StaticVariables.bBPExists) {
+            powerHistory.add(0,power);
+            /*
             Arrays.updateArray(power3sArray, power);
             Arrays.updateArray(power10sArray, power);
             Arrays.updateArray(power30sArray, power);
+            Arrays.updateArray(power5mArray, power);
+            Arrays.updateArray(power20mArray, power);
+            */
             if (StaticVariables.bStarted && StaticVariables.bMoving && !StaticVariables.bPaused) {
                 powerAvgArray[0] += power;
                 powerAvgArray[2] ++;

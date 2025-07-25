@@ -176,6 +176,7 @@ public class Fragment_Preferences extends PreferenceFragmentCompat implements Sh
         preferenceListener.updatePreference(null);
     }
 
+
     private AlertDialog dialog;
     private ProgressBar progressBar;
     private int dialogProgress;

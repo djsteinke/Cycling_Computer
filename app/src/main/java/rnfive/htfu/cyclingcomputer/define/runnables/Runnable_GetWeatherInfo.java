@@ -10,11 +10,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import rnfive.htfu.cyclingcomputer.define.DarkSkyResponse;
+import rnfive.htfu.cyclingcomputer.define.weather.OpenMeteoResponse;
 
-import static rnfive.htfu.cyclingcomputer.define.StaticVariables.DARK_SKY_KEY;
-import static rnfive.htfu.cyclingcomputer.define.StaticVariables.darkSkyResponse;
 import static rnfive.htfu.cyclingcomputer.define.StaticVariables.getClassFromJson;
+import static rnfive.htfu.cyclingcomputer.define.StaticVariables.openMeteoResponse;
 import static rnfive.htfu.cyclingcomputer.service.Service_Recording.data;
 
 public class Runnable_GetWeatherInfo implements Runnable {
@@ -37,16 +36,18 @@ public class Runnable_GetWeatherInfo implements Runnable {
         running = true;
         try {
             Log.d(TAG, "Runnable_GetWeatherInfo.command()");
-            URL url = new URL("https://api.darksky.net/forecast/" + DARK_SKY_KEY + "/" +
-                    data.getLatitude() + "," + data.getLongitude() +
-                    "?exclude=minutely,hourly,daily,alerts,flags&units=si");
+            URL url = new URL("https://api.open-meteo.com/v1/forecast?latitude=" +
+                    data.getLatitude() + "&longitude=" + data.getLongitude() +
+                    "&current=temperature_2m,wind_speed_10m,wind_direction_10m,pressure_msl");
 
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
             String response = readStream(in);
             Log.d(TAG, response);
-            if (!response.isEmpty())
-                darkSkyResponse = getClassFromJson(response, DarkSkyResponse.class);
+            if (!response.isEmpty()) {
+                openMeteoResponse = getClassFromJson(response, OpenMeteoResponse.class);
+                //data.setAbsolutePressure(openMeteoResponse.getPressureSeaLevel());
+            }
             urlConnection.disconnect();
         } catch (MalformedURLException e) {
             Log.e(TAG, "command() MalformedURLException:" + e.getMessage());

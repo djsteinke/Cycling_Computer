@@ -20,6 +20,8 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 
+import rnfive.htfu.cyclingcomputer.define.weather.OpenMeteoResponse;
+
 public final class StaticVariables {
 
     public static final String DARK_SKY_KEY = "f71cb523e435a8574e97de147922db4d";
@@ -53,7 +55,7 @@ public final class StaticVariables {
     public static int iAthleteFtp;
     public static double dGradeOffset;
 
-    public static DarkSkyResponse darkSkyResponse;
+    public static OpenMeteoResponse openMeteoResponse;
 
     public static GeomagneticField geomagneticField;
 

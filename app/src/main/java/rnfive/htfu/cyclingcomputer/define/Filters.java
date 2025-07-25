@@ -1,6 +1,8 @@
 package rnfive.htfu.cyclingcomputer.define;
 
-public class Filters {
+public final class Filters {
+    private static final double f_dulp = 0.05d;
+    private static final double f_dlp = 0.2d;
     private Filters() {}
 
     public static float[] lowPassFilter ( float[] input, float[] output ) {
@@ -24,11 +26,9 @@ public class Filters {
     }
 
     public static double doubleLPFilter(double oldVal, double newVal) {
-        double f_alpha = 0.25d;
-        return oldVal + f_alpha * (newVal - oldVal);
+        return oldVal + f_dlp * (newVal - oldVal);
     }
 
-    private static final double f_dulp = 0.05d;
     public static double doubleULPFilter(double oldVal, double newVal) {
         return oldVal + f_dulp * (newVal - oldVal);
     }

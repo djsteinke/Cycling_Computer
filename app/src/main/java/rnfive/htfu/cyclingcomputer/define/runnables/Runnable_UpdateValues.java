@@ -1,15 +1,10 @@
 package rnfive.htfu.cyclingcomputer.define.runnables;
 
-import android.util.Log;
-
 import java.util.concurrent.Executors;
 
-import static rnfive.htfu.cyclingcomputer.define.PhoneSensors.absPressure;
-import static rnfive.htfu.cyclingcomputer.define.StaticVariables.bStarted;
-//import static rnfive.htfu.cyclingcomputer.define.StaticVariables.darkSkyResponse;
 import static rnfive.htfu.cyclingcomputer.define.StaticVariables.lastUpdateValuesMS;
-//import static rnfive.htfu.cyclingcomputer.define.runnables.Runnable_GetWeatherInfo.intervalMS;
-//import static rnfive.htfu.cyclingcomputer.define.runnables.Runnable_GetWeatherInfo.lastRequestMS;
+import static rnfive.htfu.cyclingcomputer.define.runnables.Runnable_GetWeatherInfo.intervalMS;
+import static rnfive.htfu.cyclingcomputer.define.runnables.Runnable_GetWeatherInfo.lastRequestMS;
 import static rnfive.htfu.cyclingcomputer.service.Service_Recording.data;
 import static rnfive.htfu.cyclingcomputer.service.Service_Recording.phoneSensors;
 
@@ -36,12 +31,12 @@ public class Runnable_UpdateValues implements Runnable{
         updateAltitude();
 
         // Log.d(TAG, "LastMS[" + lastRequestMS + "] Lat[" + data.getLatitude() + "] Lon[" + data.getLongitude() + "]");
-        /*
+
         if (lastRequestMS < (lMsCurr-intervalMS) && data.getLatitude() != 0 && data.getLongitude() != 0) {
             Executors.newSingleThreadExecutor().execute(new Runnable_GetWeatherInfo());
             lastRequestMS = lMsCurr;
         }
-         */
+
 
         lastUpdateValuesMS = lMsCurr;
     }

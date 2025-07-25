@@ -1,7 +1,6 @@
 package rnfive.htfu.cyclingcomputer.define;
 
 import android.location.Location;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +8,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-import static rnfive.htfu.cyclingcomputer.define.Filters.doubleLPFilter;
-import static rnfive.htfu.cyclingcomputer.define.Lists.addValue;
-import static rnfive.htfu.cyclingcomputer.define.Lists.getAvg;
+import static rnfive.htfu.cyclingcomputer.define.Filters.doubleULPFilter;
 import static rnfive.htfu.cyclingcomputer.define.StaticVariables.bMoving;
 import static rnfive.htfu.cyclingcomputer.define.StaticVariables.bStarted;
 import static rnfive.htfu.cyclingcomputer.define.StaticVariables.roundDouble;
@@ -25,9 +22,10 @@ class Altitude {
     private static final double altitudeCutoff = 0.35d;
     private static final double sensorCutoff = 100.0d;
     private static final int pressureListSize = 10;
-    private static final int minDistAscent = 40;
+    private static final int minDistAscent = 61;
     private static final int minTimeAscent = 10;
 
+    private double gpsAltitude;
     private double altitude;
     private double ascent;
     private double descent;
@@ -40,6 +38,7 @@ class Altitude {
     private Location lastLocation;
     private int cntAscent;
 
+    private boolean pressureSet;
     private double absolutePressure = 1013.25;
     private double pressure;
     private double lastPressure;
@@ -50,8 +49,14 @@ class Altitude {
 
     Altitude() {}
 
+    public void setAbsolutePressure(double pressureMsl) {
+        if (!pressureSet)
+            absolutePressure = pressureMsl;
+        pressureSet = true;
+    }
+
     void updatePressure(double inPressure) {
-        inPressure = roundDouble(inPressure, 2);
+        inPressure = roundDouble(inPressure, 4);
         /*
         if (lastPressure == 0.0d)
             lastPressure = inPressure;
@@ -63,7 +68,7 @@ class Altitude {
         */
         if (lpPressure == 0)
             lpPressure = inPressure;
-        lpPressure = roundDouble(doubleLPFilter(lpPressure, inPressure),2);
+        lpPressure = roundDouble(doubleULPFilter(lpPressure, inPressure),4);
     }
 
     void updateAltitude() {
@@ -85,6 +90,10 @@ class Altitude {
                 updateAscent();
             lastLocation = location;
         }
+    }
+
+    double getAltitudeFromCurrentPressure() {
+        return roundDouble(calculateAltitude(lpPressure), 2);
     }
 
     private double total() {

@@ -33,15 +33,10 @@ android {
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
-    implementation( name: 'antpluginlib_3-8-0', ext: 'aar')
-    //implementation( name: 'fit_21.54.01', ext: 'jar')
-    implementation( name: 'fit_21.126.00', ext: 'jar')
-    //implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
-    //implementation fileTree(include: ['*.jar'], dir: 'libs')
-    //implementation project(path: ':app:ant')
-    //compileOnly 'org.projectlombok:lombok:1.18.22'
-    compileOnly 'org.projectlombok:lombok:1.18.38'
+    implementation( name: 'antpluginlib_3-8-0', ext: 'aar', group: "ant+", version: "3.8.0")
+    implementation( name: 'fit_21.126.00', ext: 'jar', group: "fit", version: "21.126.00")
     annotationProcessor 'org.projectlombok:lombok:1.18.38'
+    compileOnly 'org.projectlombok:lombok:1.18.38'
     implementation 'com.github.djsteinke:strava-library:0.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.preference:preference:1.2.1'
@@ -50,9 +45,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.6'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'com.google.android.material:material:1.12.0'
-    //testImplementation 'junit:junit:'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 }

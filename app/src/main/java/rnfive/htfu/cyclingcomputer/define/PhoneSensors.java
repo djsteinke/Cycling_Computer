@@ -96,7 +96,7 @@ public class PhoneSensors implements SensorEventListener {
     }
 
     @Override
-    public final void onAccuracyChanged(Sensor sensor, int accuracy) {
+    public final void onAccuracyChanged(Sensor sensor, int i) {
         // Do something here if device accuracy changes.
     }
 
@@ -111,13 +111,13 @@ public class PhoneSensors implements SensorEventListener {
     private float[] rotationMatrix = new float[16];
     private double angle;
     private float angleF;
-    private int cnt = 0;
+    private int cnt;
     private float[] gravityValues;
     private float[] geomagneticValues;
     @Override
-    public final void onSensorChanged(SensorEvent event) {
+    public final void onSensorChanged(SensorEvent sensorEvent) {
         if (data != null) {
-            switch (event.sensor.getType()) {
+            switch (sensorEvent.sensor.getType()) {
                 case Sensor.TYPE_STEP_DETECTOR:
                     // TODO steps
                     //if (event.values[0]==1) {
@@ -125,28 +125,28 @@ public class PhoneSensors implements SensorEventListener {
                     //}
                     break;
                 case Sensor.TYPE_PRESSURE :
-                    pressure = event.values[0];
+                    pressure = sensorEvent.values[0];
                     data.updatePressure(pressure);
                     break;
                 case Sensor.TYPE_ACCELEROMETER :
-                    data.setGravityArray(event.values.clone());
-                    gravityValues = event.values.clone();
+                    data.setGravityArray(sensorEvent.values.clone());
+                    gravityValues = sensorEvent.values.clone();
                     bAcc = true;
                     iAccMag ++;
                     break;
                 case Sensor.TYPE_MAGNETIC_FIELD :
-                    data.setMagneticArray(event.values.clone());
-                    geomagneticValues = event.values.clone();
+                    data.setMagneticArray(sensorEvent.values.clone());
+                    geomagneticValues = sensorEvent.values.clone();
                     bMag = true;
                     iAccMag ++;
                     break;
                 case Sensor.TYPE_ROTATION_VECTOR:
-                    SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+                    SensorManager.getRotationMatrixFromVector(rotationMatrix, sensorEvent.values);
                     SensorManager.getOrientation(rotationMatrix, rotationOrientation);
                     cnt += 1;
                     if (cnt > 5) {
-                        Log.d(TAG, Math.toDegrees(rotationOrientation[0]) + " : " + Math.toDegrees(rotationOrientation[1]) + " : " + Math.toDegrees(rotationOrientation[2]) + " : " +
-                                event.accuracy);
+                        //Log.d(TAG, Math.toDegrees(rotationOrientation[0]) + " : " + Math.toDegrees(rotationOrientation[1]) + " : " + Math.toDegrees(rotationOrientation[2]) + " : " +
+                        //        sensorEvent.accuracy);
                         cnt = 0;
                     }
                     //angle = Filters.doubleULPFilter(angle, rotationOrientation[1]);

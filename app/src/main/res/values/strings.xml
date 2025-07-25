@@ -123,6 +123,8 @@
     <string name="power_3s">Power 3s</string>
     <string name="power_10s">Power 10s</string>
     <string name="power_30s">Power 30s</string>
+    <string name="power_5m">Power 5m</string>
+    <string name="power_20m">Power 20m</string>
     <string name="power_avg">Power Avg</string>
     <string name="power_lap">Power Lap</string>
     <string name="torque">Torque</string>
@@ -142,6 +144,7 @@
     <string name="ascent_lap">Ascent Lap</string>
     <string name="descent_lap">Descent Lap</string>
     <string name="grade">Grade</string>
+    <string name="grade_alt">Grade (Alt)</string>
     <string name="altitude">Altitude</string>
     <string name="watts_per_kg">Watts/KG</string>
 

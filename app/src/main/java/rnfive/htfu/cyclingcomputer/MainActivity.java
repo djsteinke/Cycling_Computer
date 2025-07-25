@@ -363,7 +363,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     void updateDisplay() {
-        bWeatherExists = darkSkyResponse != null;
+        bWeatherExists = openMeteoResponse != null;
 
         if (bFragmentReady && fragmentDataFields.getView() != null && data != null) {
             SpannableString ssValue;
@@ -464,19 +464,36 @@ public class MainActivity extends AppCompatActivity
                         break;
                     case DataFields.POWER_3S:
                         if (bBPExists && data.getPower() != -1) {
-                            sValue = String.valueOf(Math.round(Arrays.getAvg(data.getPower3sArray())));
+                            sValue = String.valueOf(data.getPowerHistoryAvg(3));
+                            //sValue = String.valueOf(Math.round(Arrays.getAvg(data.getPower3sArray())));
                         }
                         bPower = true;
                         break;
                     case DataFields.POWER_10S:
                         if (bBPExists && data.getPower() != -1) {
-                            sValue = String.valueOf(Math.round(Arrays.getAvg(data.getPower10sArray())));
+                            sValue = String.valueOf(data.getPowerHistoryAvg(10));
+                            //sValue = String.valueOf(Math.round(Arrays.getAvg(data.getPower10sArray())));
                         }
                         bPower = true;
                         break;
                     case DataFields.POWER_30S:
                         if (bBPExists && data.getPower() != -1) {
-                            sValue = String.valueOf(Math.round(Arrays.getAvg(data.getPower30sArray())));
+                            sValue = String.valueOf(data.getPowerHistoryAvg(30));
+                            //sValue = String.valueOf(Math.round(Arrays.getAvg(data.getPower30sArray())));
+                        }
+                        bPower = true;
+                        break;
+                    case DataFields.POWER_5M:
+                        if (bBPExists && data.getPower() != -1) {
+                            sValue = String.valueOf(data.getPowerHistoryAvg(300));
+                            //sValue = String.valueOf(Math.round(Arrays.getAvg(data.getPower5mArray())));
+                        }
+                        bPower = true;
+                        break;
+                    case DataFields.POWER_20M:
+                        if (bBPExists && data.getPower() != -1) {
+                            sValue = String.valueOf(data.getPowerHistoryAvg(1200));
+                            //sValue = String.valueOf(Math.round(Arrays.getAvg(data.getPower20mArray())));
                         }
                         bPower = true;
                         break;
@@ -545,21 +562,25 @@ public class MainActivity extends AppCompatActivity
                         isSS = true;
                         ssValue = getSSValue(Strings.getNumericString(data.getGrade(),1),2,0.7f);
                         break;
+                    case DataFields.GRADE_ALTITUDE:
+                        isSS = true;
+                        ssValue = getSSValue(Strings.getNumericString(data.getLocationGrade(),1),2,0.7f);
+                        break;
                     case DataFields.TEMPERATURE:
                         if (bWeatherExists)
-                            sValue = Strings.getTemperatureString((float) darkSkyResponse.getTemperature());
+                            sValue = Strings.getTemperatureString((float) openMeteoResponse.getTemperature());
                         break;
                     case DataFields.WIND:
                         skip = (iDisplayCnt%3 != 0);
                         if (!skip) {
                             if (bWeatherExists) {
-                                fragmentDataFields.setImageValue(i, (float) ((darkSkyResponse.getWindBearing() - 180) - data.getBearing()));
-                                fValue = Units.getSpeed(darkSkyResponse.getWindSpeed());
+                                fragmentDataFields.setImageValue(i, (float) ((openMeteoResponse.getWindDirection() - 180) - data.getBearing()));
+                                fValue = Units.getSpeed(openMeteoResponse.getWindSpeed());
                                 if (fValue >=10)
                                     sValue = String.valueOf(Math.round(fValue));
                                 else {
                                     isSS = true;
-                                    ssValue = getSSValue(Strings.getSpeedString(darkSkyResponse.getWindSpeed()),2,0.7f);
+                                    ssValue = getSSValue(Strings.getSpeedString(openMeteoResponse.getWindSpeed()),2,0.7f);
                                 }
                             } else
                                 fragmentDataFields.setImageValue(i,0);

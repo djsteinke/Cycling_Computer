@@ -7,12 +7,19 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 import rnfive.htfu.cyclingcomputer.strava.runnable.Runnable_StravaAuth;
 import rnfive.htfu.cyclingcomputer.utils.MenuUtil;
 import rn5.djs.stravalib.authentication.model.AuthenticationType;
@@ -25,6 +32,24 @@ public class Settings extends AppCompatActivity {
     protected  void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        LinearLayout main = findViewById(R.id.activity_settings);
+        ViewCompat.setOnApplyWindowInsetsListener(main, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            // Apply the insets as a margin to the view. This solution sets only the
+            // bottom, left, and right dimensions, but you can apply whichever insets are
+            // appropriate to your layout. You can also update the view padding if that's
+            // more appropriate.
+            ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            mlp.leftMargin = insets.left;
+            mlp.bottomMargin = insets.bottom;
+            mlp.rightMargin = insets.right;
+            mlp.topMargin = insets.top;
+            v.setLayoutParams(mlp);
+
+            // Return CONSUMED if you don't want want the window insets to keep passing
+            // down to descendant views.
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         getSupportFragmentManager().beginTransaction().replace(R.id.settings_content, new Fragment_Preferences(this)).commit();
     }

@@ -18,6 +18,10 @@ import android.widget.TextView;
 import androidx.appcompat.content.res.AppCompatResources;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import lombok.Getter;
 import lombok.Setter;
@@ -63,6 +67,7 @@ public class Fragment_DataFields extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         dataFieldsLength = activityDataFields.length;
         View newView = inflater.inflate(R.layout.fragment_data_fields, container, false);
         gridLayout = newView.findViewById(R.id.data_field_grid_layout);
